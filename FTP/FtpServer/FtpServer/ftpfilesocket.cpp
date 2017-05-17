@@ -170,7 +170,6 @@ void FtpFileSocket::Download(QString Filename, qint64 Position)
         //Send the contents of the file
         while (!file.atEnd()) {
             QByteArray buffer = file.read(1024 * 8);
-            qDebug() << "HALOOOOOOOOOOO byteswritten: ";
             sendResponse(buffer);
         }
 
