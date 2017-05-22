@@ -91,13 +91,13 @@ void CmtIeaCipher::cmt(QImage &image)
             int j = 0;
             int x = (i + 1) % width;
             for (; j < width; ++j, x = (x + 1) % width) {
-                const int y = T1[height * x + i].n;
+                const int y = T1[height * x + i].position;
                 cache.push_back(image.pixel(x, y));
             }
         }
         // put values in new positions
         for (int x = 0; x < width; ++x) {
-            const int y = T1[height * x + i].n;
+            const int y = T1[height * x + i].position;
             image.setPixel(x, y, cache[x]);
         }
     }
@@ -110,13 +110,13 @@ void CmtIeaCipher::cmt(QImage &image)
             int j = 0;
             int x = (i + 1) % width;
             for (; j < width; ++j, x = (x + 1) % width) {
-                const int y = T2[height * x + i].n;
+                const int y = T2[height * x + i].position;
                 cache.push_back(image.pixel(x, y));
             }
         }
         // put values in new positions
         for (int x = 0; x < width; ++x) {
-            const int y = T2[height * x + i].n;
+            const int y = T2[height * x + i].position;
             image.setPixel(x, y, cache[x]);
         }
     }
@@ -135,7 +135,7 @@ void CmtIeaCipher::rCmt(QImage &image)
         cache.clear();
         // cache values
         for (int x = 0; x < width; ++x) {
-            const int y = T2[height * x + i].n;
+            const int y = T2[height * x + i].position;
             cache.push_back(image.pixel(x, y));
         }
         // put values in new positions
@@ -143,7 +143,7 @@ void CmtIeaCipher::rCmt(QImage &image)
             int j = 0;
             int x = (i + 1) % width;
             for (; j < width; ++j, x = (x + 1) % width) {
-                const int y = T2[height * x + i].n;
+                const int y = T2[height * x + i].position;
                 image.setPixel(x, y, cache[j]);
             }
         }
@@ -154,7 +154,7 @@ void CmtIeaCipher::rCmt(QImage &image)
         cache.clear();
         // cache values
         for (int x = 0; x < width; ++x) {
-            const int y = T1[height * x + i].n;
+            const int y = T1[height * x + i].position;
             cache.push_back(image.pixel(x, y));
         }
         // put values in new positions
@@ -162,7 +162,7 @@ void CmtIeaCipher::rCmt(QImage &image)
             int j = 0;
             int x = (i + 1) % width;
             for (; j < width; ++j, x = (x + 1) % width) {
-                const int y = T1[height * x + i].n;
+                const int y = T1[height * x + i].position;
                 image.setPixel(x, y, cache[j]);
             }
         }
@@ -173,19 +173,19 @@ void CmtIeaCipher::substitution(QImage &image)
 {
     const int width = image.width();
     const int height = image.height();
-    const quint64 coeficient = 0x100000000;
+    const quint64 coef = 0x100000000;
 
     // 1-st row substitution
     for (int y = 0; y < height; ++y) {
         // the first pixel in row
         {
-            const QRgb shift = image.pixel(width - 1, y) + (QRgb)std::floor(S1[y] * coeficient);
+            const QRgb shift = image.pixel(width - 1, y) + (QRgb)std::floor(S1[y] * coef);
             const QRgb value = image.pixel(0, y) + shift;
             image.setPixel(0, y, value);
         }
         // rest pixels in row
         for (int x = 1; x < width; ++x) {
-            const QRgb shift = image.pixel(x - 1, y) + (QRgb)std::floor(S1[height * x + y] * coeficient);
+            const QRgb shift = image.pixel(x - 1, y) + (QRgb)std::floor(S1[height * x + y] * coef);
             const QRgb value = image.pixel(x, y) + shift;
             image.setPixel(x, y, value);
         }
@@ -195,13 +195,13 @@ void CmtIeaCipher::substitution(QImage &image)
     for (int x = 0; x < width; ++x) {
         // the first pixel in column
         {
-            const QRgb shift = image.pixel(x, height - 1) + (QRgb)std::floor(S1[height * x] * coeficient);
+            const QRgb shift = image.pixel(x, height - 1) + (QRgb)std::floor(S1[height * x] * coef);
             const QRgb value = image.pixel(x, 0) + shift;
             image.setPixel(x, 0, value);
         }
         // rest pixels in column
         for (int y = 1; y < height; ++y) {
-            const QRgb shift = image.pixel(x, y - 1) + (QRgb)std::floor(S1[height * x + y] * coeficient);
+            const QRgb shift = image.pixel(x, y - 1) + (QRgb)std::floor(S1[height * x + y] * coef);
             const QRgb value = image.pixel(x, y) + shift;
             image.setPixel(x, y, value);
         }
@@ -211,13 +211,13 @@ void CmtIeaCipher::substitution(QImage &image)
     for (int y = 0; y < height; ++y) {
         // the first pixel in row
         {
-            const QRgb shift = image.pixel(width - 1, y) + (QRgb)std::floor(S2[y] * coeficient);
+            const QRgb shift = image.pixel(width - 1, y) + (QRgb)std::floor(S2[y] * coef);
             const QRgb value = image.pixel(0, y) + shift;
             image.setPixel(0, y, value);
         }
         // rest pixels in row
         for (int x = 1; x < width; ++x) {
-            const QRgb shift = image.pixel(x - 1, y) + (QRgb)std::floor(S2[height * x + y] * coeficient);
+            const QRgb shift = image.pixel(x - 1, y) + (QRgb)std::floor(S2[height * x + y] * coef);
             const QRgb value = image.pixel(x, y) + shift;
             image.setPixel(x, y, value);
         }
@@ -227,13 +227,13 @@ void CmtIeaCipher::substitution(QImage &image)
     for (int x = 0; x < width; ++x) {
         // the first pixel in column
         {
-            const QRgb shift = image.pixel(x, height - 1) + (QRgb)std::floor(S2[height * x] * coeficient);
+            const QRgb shift = image.pixel(x, height - 1) + (QRgb)std::floor(S2[height * x] * coef);
             const QRgb value = image.pixel(x, 0) + shift;
             image.setPixel(x, 0, value);
         }
         // rest pixels in column
         for (int y = 1; y < height; ++y) {
-            const QRgb shift = image.pixel(x, y - 1) + (QRgb)std::floor(S2[height * x + y] * coeficient);
+            const QRgb shift = image.pixel(x, y - 1) + (QRgb)std::floor(S2[height * x + y] * coef);
             const QRgb value = image.pixel(x, y) + shift;
             image.setPixel(x, y, value);
         }
@@ -245,19 +245,19 @@ void CmtIeaCipher::rSubstitution(QImage &image)
 {
     const int width = image.width();
     const int height = image.height();
-    const quint64 coeficient = 0x100000000;
+    const quint64 coef = 0x100000000;
 
     // 2-nd column substitution
     for (int x = 0; x < width; ++x) {
-        // all pixels in row except the first one
+        // all pixels in column except the first one
         for (int y = height - 1; y > 0; --y) {
-            const QRgb shift = image.pixel(x, y - 1) + (QRgb)std::floor(S2[height * x + y] * coeficient);
+            const QRgb shift = image.pixel(x, y - 1) + (QRgb)std::floor(S2[height * x + y] * coef);
             const QRgb value = image.pixel(x, y) - shift;
             image.setPixel(x, y, value);
         }
-        // the first pixel in row
+        // the first pixel in column
         {
-            const QRgb shift = image.pixel(x, height - 1) + (QRgb)std::floor(S2[height * x] * coeficient);
+            const QRgb shift = image.pixel(x, height - 1) + (QRgb)std::floor(S2[height * x] * coef);
             const QRgb value = image.pixel(x, 0) - shift;
             image.setPixel(x, 0, value);
         }
@@ -267,13 +267,13 @@ void CmtIeaCipher::rSubstitution(QImage &image)
     for (int y = 0; y < height; ++y) {
         // all pixels in row except the first one
         for (int x = width - 1; x > 0; --x) {
-            const QRgb shift = image.pixel(x - 1, y) + (QRgb)std::floor(S2[height * x + y] * coeficient);
+            const QRgb shift = image.pixel(x - 1, y) + (QRgb)std::floor(S2[height * x + y] * coef);
             const QRgb value = image.pixel(x, y) - shift;
             image.setPixel(x, y, value);
         }
         // the first pixel in row
         {
-            const QRgb shift = image.pixel(width - 1, y) + (QRgb)std::floor(S2[y] * coeficient);
+            const QRgb shift = image.pixel(width - 1, y) + (QRgb)std::floor(S2[y] * coef);
             const QRgb value = image.pixel(0, y) - shift;
             image.setPixel(0, y, value);
         }
@@ -281,15 +281,15 @@ void CmtIeaCipher::rSubstitution(QImage &image)
 
     // 1-st column substitution
     for (int x = 0; x < width; ++x) {
-        // all pixels in row except the first one
+        // all pixels in column except the first one
         for (int y = height - 1; y > 0; --y) {
-            const QRgb shift = image.pixel(x, y - 1) + (QRgb)std::floor(S1[height * x + y] * coeficient);
+            const QRgb shift = image.pixel(x, y - 1) + (QRgb)std::floor(S1[height * x + y] * coef);
             const QRgb value = image.pixel(x, y) - shift;
             image.setPixel(x, y, value);
         }
-        // the first pixel in row
+        // the first pixel in column
         {
-            const QRgb shift = image.pixel(x, height - 1) + (QRgb)std::floor(S1[height * x] * coeficient);
+            const QRgb shift = image.pixel(x, height - 1) + (QRgb)std::floor(S1[height * x] * coef);
             const QRgb value = image.pixel(x, 0) - shift;
             image.setPixel(x, 0, value);
         }
@@ -299,13 +299,13 @@ void CmtIeaCipher::rSubstitution(QImage &image)
     for (int y = 0; y < height; ++y) {
         // all pixels in row except the first one
         for (int x = width - 1; x > 0; --x) {
-            const QRgb shift = image.pixel(x - 1, y) + (QRgb)std::floor(S1[height * x + y] * coeficient);
+            const QRgb shift = image.pixel(x - 1, y) + (QRgb)std::floor(S1[height * x + y] * coef);
             const QRgb value = image.pixel(x, y) - shift;
             image.setPixel(x, y, value);
         }
         // the first pixel in row
         {
-            const QRgb shift = image.pixel(width - 1, y) + (QRgb)std::floor(S1[y] * coeficient);
+            const QRgb shift = image.pixel(width - 1, y) + (QRgb)std::floor(S1[y] * coef);
             const QRgb value = image.pixel(0, y) - shift;
             image.setPixel(0, y, value);
         }
@@ -314,14 +314,14 @@ void CmtIeaCipher::rSubstitution(QImage &image)
 
 bool CmtIeaCipher::cmp(const Pair &a, const Pair &b)
 {
-    if (a.v == b.v) {
-        return a.n < b.n;
+    if (a.value == b.value) {
+        return a.position < b.position;
     }
-    return a.v < b.v;
+    return a.value < b.value;
 }
 
 Pair::Pair(int n, double v)
-    : n(n)
-    , v(v)
+    : position(n)
+    , value(v)
 {
 }

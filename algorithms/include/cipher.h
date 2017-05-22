@@ -9,11 +9,11 @@ class QImage;
 class QSize;
 
 struct Pair {
-    int n;
-    double v;
+    int position;
+    double value;
 
     Pair() = default;
-    Pair(int n, double v);
+    Pair(int position, double value);
 };
 
 class CmtIeaCipher

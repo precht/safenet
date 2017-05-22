@@ -41,7 +41,7 @@ int main(int argc, char *argv[])
     cipher.decrypt(other);
 
     qInfo() << "(orginal == decrypted) is:" << (original == other);
-    qInfo() << "time" << timer.elapsed() << "ms";
+    qInfo() << "time:" << timer.elapsed() << "ms";
 
     // qInfo runs on defferent thread, let's wait to make sure that msg gets to cerr before ending
     QThread::msleep(500);
