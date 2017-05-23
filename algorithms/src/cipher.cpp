@@ -5,6 +5,16 @@
 #include <QDebug>
 
 #include <cmath>
+#include <iostream>
+#include <thread>
+
+CmtIeaCipher::~CmtIeaCipher()
+{
+    delete[] S1;
+    delete[] S2;
+    delete[] T1;
+    delete[] T2;
+}
 
 void CmtIeaCipher::encrypt(QImage &image)
 {
@@ -16,24 +26,24 @@ void CmtIeaCipher::encrypt(QImage &image)
 void CmtIeaCipher::decrypt(QImage &image)
 {
     slmm2d(image.size());
-    rSubstitution(image);
-    rCmt(image);
+    reverseSubstitution(image);
+    reverseCmt(image);
 }
 
 void CmtIeaCipher::slmm2d(const QSize &size)
 {
-    const int height = size.height();
     const int width = size.width();
-    const int total = size.height() * size.width();
+    const int height = size.height();
+    const int total = width * height;
 
-    S1.resize(total);
-    S2.resize(total);
-    T1.resize(total);
-    T2.resize(total);
-    S1.clear();
-    S2.clear();
-    T1.clear();
-    T2.clear();
+    delete[] S1;
+    delete[] S2;
+    delete[] T1;
+    delete[] T2;
+    S1 = new double[total];
+    S2 = new double[total];
+    T1 = new Pair[total];
+    T2 = new Pair[total];
 
     // generate chaotic sequences
     double xPrev = std::fmod(K.x + K.G1 * K.H, 1.0);
@@ -45,8 +55,8 @@ void CmtIeaCipher::slmm2d(const QSize &size)
     for (int i = 0; i < total; ++i) {
         xNext = A * (std::sin(PI * yPrev) + B) * xPrev * (1 - xPrev);
         yNext = A * (std::sin(PI * xNext) + B) * yPrev * (1 - yPrev);
-        S1.push_back(xNext + yNext);
-        T1.push_back(Pair(counter++, xNext + yNext));
+        S1[i] = xNext + yNext;
+        T1[i] = Pair(counter++, xNext + yNext);
         xPrev = xNext;
         yPrev = yNext;
         counter %= height;
@@ -59,111 +69,154 @@ void CmtIeaCipher::slmm2d(const QSize &size)
     for (int i = 0; i < total; ++i) {
         xNext = A * (std::sin(PI * yPrev) + B) * xPrev * (1 - xPrev);
         yNext = A * (std::sin(PI * xNext) + B) * yPrev * (1 - yPrev);
-        S2.push_back(xNext + yNext);
-        T2.push_back(Pair(counter++, xNext + yNext));
+        S2[i] = xNext + yNext;
+        T2[i] = Pair(counter++, xNext + yNext);
         xPrev = xNext;
         yPrev = yNext;
         counter %= height;
     }
 
-    // sort by columns
-    auto it1 = T1.begin();
-    auto it2 = T2.begin();
-    for (int i = 0; i < width; ++i, it1 += height, it2 += height) {
-        std::sort(it1, it1 + height, cmp);
-        std::sort(it2, it2 + height, cmp);
+    int threadsNumber = std::thread::hardware_concurrency();
+    if (threadsNumber <= 0 ) threadsNumber = 1;
+    std::vector<std::thread> threadsPool;
+
+    // create many threads and sort columns on them
+    for (int i = 1; i < threadsNumber; ++i) {
+        threadsPool.push_back(std::move(std::thread(threadSlmm2dSort, i, threadsNumber, width, height, T1, T2)));
+    }
+    threadSlmm2dSort(0, threadsNumber, width, height, T1, T2);
+
+    // wait for all threads to end
+    for (auto it = threadsPool.begin(); it != threadsPool.end(); ++it) {
+        it->join();
+    }
+}
+
+void CmtIeaCipher::threadSlmm2dSort(const int threadIndex, const int threadsNumber, const int width, const int height,
+                                    Pair *T1, Pair *T2)
+{
+    for (int i = threadIndex; i < width; i += threadsNumber) {
+        const int p = i * height;
+        std::sort(T1 + p, T1 + p + height, cmp);
+        std::sort(T2 + p, T2 + p + height, cmp);
     }
 }
 
 void CmtIeaCipher::cmt(QImage &image)
 {
-    const int height = image.height();
     const int width = image.width();
+    const int height = image.height();
 
+    int threadsNumber = std::thread::hardware_concurrency();
+    if (threadsNumber <= 0 ) threadsNumber = 1;
+    std::vector<std::thread> threadsPool;
+
+    // create many threads and transform using matrix T1
+    for (int i = 1; i < threadsNumber; ++i) {
+        threadsPool.push_back(std::move(std::thread(threadCmt, i, threadsNumber,
+                                                    width, height, (unsigned *)image.bits(), T1)));
+    }
+    threadCmt(0, threadsNumber, width, height, (unsigned *)image.bits(), T1);
+
+    // wait for all threads to end
+    for (auto it = threadsPool.begin(); it != threadsPool.end(); ++it) {
+        it->join();
+    }
+    threadsPool.clear();
+
+    //do the same for matrix T2
+    for (int i = 1; i < threadsNumber; ++i) {
+        threadsPool.push_back(std::move(std::thread(threadCmt, i, threadsNumber,
+                                                    width, height, (unsigned *)image.bits(), T2)));
+    }
+    threadCmt(0, threadsNumber, width, height, (unsigned *)image.bits(), T2);
+
+    // wait for all threads to end
+    for (auto it = threadsPool.begin(); it != threadsPool.end(); ++it) {
+        it->join();
+    }
+}
+
+void CmtIeaCipher::threadCmt(const int threadIndex, const int threadsNumber, const int width, const int height,
+                               QRgb *image, Pair *T)
+{
     std::vector<QRgb> cache;
     cache.resize(width);
 
-    // transform using matrix T1
-    for (int i = 0; i < height; ++i) {
+    for (int i = threadIndex; i < height; i += threadsNumber) {
         cache.clear();
         // cache values
         {
             int j = 0;
             int x = (i + 1) % width;
             for (; j < width; ++j, x = (x + 1) % width) {
-                const int y = T1[height * x + i].position;
-                cache.push_back(image.pixel(x, y));
+                const int y = T[height * x + i].position;
+                cache.push_back(image[y * width + x]);
             }
         }
         // put values in new positions
         for (int x = 0; x < width; ++x) {
-            const int y = T1[height * x + i].position;
-            image.setPixel(x, y, cache[x]);
-        }
-    }
-
-    // transform using matrix T2
-    for (int i = 0; i < height; ++i) {
-        cache.clear();
-        // cache values
-        {
-            int j = 0;
-            int x = (i + 1) % width;
-            for (; j < width; ++j, x = (x + 1) % width) {
-                const int y = T2[height * x + i].position;
-                cache.push_back(image.pixel(x, y));
-            }
-        }
-        // put values in new positions
-        for (int x = 0; x < width; ++x) {
-            const int y = T2[height * x + i].position;
-            image.setPixel(x, y, cache[x]);
+            const int y = T[height * x + i].position;
+            image[y * width + x] =  cache[x];
         }
     }
 }
 
-void CmtIeaCipher::rCmt(QImage &image)
+void CmtIeaCipher::reverseCmt(QImage &image)
 {
-    const int height = image.height();
     const int width = image.width();
+    const int height = image.height();
 
+    int threadsNumber = std::thread::hardware_concurrency();
+    if (threadsNumber <= 0 ) threadsNumber = 1;
+    std::vector<std::thread> threadsPool;
+
+    // create many threads and reverse transform using matrix T2
+    for (int i = 1; i < threadsNumber; ++i) {
+        threadsPool.push_back(std::move(std::thread(threadRcmt, i, threadsNumber,
+                                                    width, height, (unsigned *)image.bits(), T2)));
+    }
+    threadRcmt(0, threadsNumber, width, height, (unsigned *)image.bits(), T2);
+
+    // wait for all threads to end
+    for (auto it = threadsPool.begin(); it != threadsPool.end(); ++it) {
+        it->join();
+    }
+    threadsPool.clear();
+
+    //do the same for matrix T1
+    for (int i = 1; i < threadsNumber; ++i) {
+        threadsPool.push_back(std::move(std::thread(threadRcmt, i, threadsNumber,
+                                                    width, height, (unsigned *)image.bits(), T1)));
+    }
+    threadRcmt(0, threadsNumber, width, height, (unsigned *)image.bits(), T1);
+
+    // wait for all threads to end
+    for (auto it = threadsPool.begin(); it != threadsPool.end(); ++it) {
+        it->join();
+    }
+}
+
+void CmtIeaCipher::threadRcmt(const int threadIndex, const int threadsNumber, const int width, const int height,
+                              QRgb *image, Pair *T)
+{
     std::vector<QRgb> cache;
     cache.resize(width);
 
-    // transform using matrix T2
-    for (int i = 0; i < height; ++i) {
+    for (int i = threadIndex; i < height; i += threadsNumber) {
         cache.clear();
         // cache values
         for (int x = 0; x < width; ++x) {
-            const int y = T2[height * x + i].position;
-            cache.push_back(image.pixel(x, y));
+            const int y = T[height * x + i].position;
+                cache.push_back(image[y * width + x]);
         }
         // put values in new positions
         {
             int j = 0;
             int x = (i + 1) % width;
             for (; j < width; ++j, x = (x + 1) % width) {
-                const int y = T2[height * x + i].position;
-                image.setPixel(x, y, cache[j]);
-            }
-        }
-    }
-
-    // transform using matrix T1
-    for (int i = 0; i < height; ++i) {
-        cache.clear();
-        // cache values
-        for (int x = 0; x < width; ++x) {
-            const int y = T1[height * x + i].position;
-            cache.push_back(image.pixel(x, y));
-        }
-        // put values in new positions
-        {
-            int j = 0;
-            int x = (i + 1) % width;
-            for (; j < width; ++j, x = (x + 1) % width) {
-                const int y = T1[height * x + i].position;
-                image.setPixel(x, y, cache[j]);
+                const int y = T[height * x + i].position;
+                image[y * width + x] = cache[j];
             }
         }
     }
@@ -173,142 +226,169 @@ void CmtIeaCipher::substitution(QImage &image)
 {
     const int width = image.width();
     const int height = image.height();
-    const quint64 coef = 0x100000000;
 
-    // 1-st row substitution
-    for (int y = 0; y < height; ++y) {
-        // the first pixel in row
-        {
-            const QRgb shift = image.pixel(width - 1, y) + (QRgb)std::floor(S1[y] * coef);
-            const QRgb value = image.pixel(0, y) + shift;
-            image.setPixel(0, y, value);
-        }
-        // rest pixels in row
-        for (int x = 1; x < width; ++x) {
-            const QRgb shift = image.pixel(x - 1, y) + (QRgb)std::floor(S1[height * x + y] * coef);
-            const QRgb value = image.pixel(x, y) + shift;
-            image.setPixel(x, y, value);
-        }
+    int threadsNumber = std::thread::hardware_concurrency();
+    if (threadsNumber <= 0 ) threadsNumber = 1;
+    std::vector<std::thread> threadsPool;
+
+    // create many threads and substitute pixels using S1 matrix
+
+    // substitute rows
+    for (int i = 1; i < threadsNumber; ++i) {
+        threadsPool.push_back(std::move(std::thread(threadRowSubstitution, i, threadsNumber,
+                                                    width, height, C, (QRgb *)image.bits(), S1)));
     }
-
-    // 1-st column substitution
-    for (int x = 0; x < width; ++x) {
-        // the first pixel in column
-        {
-            const QRgb shift = image.pixel(x, height - 1) + (QRgb)std::floor(S1[height * x] * coef);
-            const QRgb value = image.pixel(x, 0) + shift;
-            image.setPixel(x, 0, value);
-        }
-        // rest pixels in column
-        for (int y = 1; y < height; ++y) {
-            const QRgb shift = image.pixel(x, y - 1) + (QRgb)std::floor(S1[height * x + y] * coef);
-            const QRgb value = image.pixel(x, y) + shift;
-            image.setPixel(x, y, value);
-        }
+    threadRowSubstitution(0, threadsNumber, width, height, C, (QRgb *)image.bits(), S1);
+    for (auto it = threadsPool.begin(); it != threadsPool.end(); ++it) {
+        it->join();
     }
+    threadsPool.clear();
 
-    // 2-nd row substitution
-    for (int y = 0; y < height; ++y) {
-        // the first pixel in row
-        {
-            const QRgb shift = image.pixel(width - 1, y) + (QRgb)std::floor(S2[y] * coef);
-            const QRgb value = image.pixel(0, y) + shift;
-            image.setPixel(0, y, value);
-        }
-        // rest pixels in row
-        for (int x = 1; x < width; ++x) {
-            const QRgb shift = image.pixel(x - 1, y) + (QRgb)std::floor(S2[height * x + y] * coef);
-            const QRgb value = image.pixel(x, y) + shift;
-            image.setPixel(x, y, value);
-        }
+    //substitute columns
+    for (int i = 1; i < threadsNumber; ++i) {
+        threadsPool.push_back(std::move(std::thread(threadColumnSubstitution, i, threadsNumber,
+                                                    width, height, C, (QRgb *)image.bits(), S1)));
     }
-
-    // 2-nd column substitution
-    for (int x = 0; x < width; ++x) {
-        // the first pixel in column
-        {
-            const QRgb shift = image.pixel(x, height - 1) + (QRgb)std::floor(S2[height * x] * coef);
-            const QRgb value = image.pixel(x, 0) + shift;
-            image.setPixel(x, 0, value);
-        }
-        // rest pixels in column
-        for (int y = 1; y < height; ++y) {
-            const QRgb shift = image.pixel(x, y - 1) + (QRgb)std::floor(S2[height * x + y] * coef);
-            const QRgb value = image.pixel(x, y) + shift;
-            image.setPixel(x, y, value);
-        }
+    threadColumnSubstitution(0, threadsNumber, width, height, C, (QRgb *)image.bits(), S1);
+    for (auto it = threadsPool.begin(); it != threadsPool.end(); ++it) {
+        it->join();
     }
+    threadsPool.clear();
 
+    // create many threads and substitute pixels using S2 matrix
+
+    // substitute rows
+    for (int i = 1; i < threadsNumber; ++i) {
+        threadsPool.push_back(std::move(std::thread(threadRowSubstitution, i, threadsNumber,
+                                                    width, height, C, (QRgb *)image.bits(), S2)));
+    }
+    threadRowSubstitution(0, threadsNumber, width, height, C, (QRgb *)image.bits(), S2);
+    for (auto it = threadsPool.begin(); it != threadsPool.end(); ++it) {
+        it->join();
+    }
+    threadsPool.clear();
+
+    //substitute columns
+    for (int i = 1; i < threadsNumber; ++i) {
+        threadsPool.push_back(std::move(std::thread(threadColumnSubstitution, i, threadsNumber,
+                                                    width, height, C, (QRgb *)image.bits(), S2)));
+    }
+    threadColumnSubstitution(0, threadsNumber, width, height, C, (QRgb *)image.bits(), S2);
+    for (auto it = threadsPool.begin(); it != threadsPool.end(); ++it) {
+        it->join();
+    }
 }
 
-void CmtIeaCipher::rSubstitution(QImage &image)
+void CmtIeaCipher::threadRowSubstitution(const int threadIndex, const int threadsNumber, const int width,
+                                         const int height, const quint64 C, unsigned *image, double *S)
+{
+    for (int y = threadIndex; y < height; y += threadsNumber) {
+        // the first pixel in row
+        image[y * width] = image[y * width] + image[(y + 1) * width - 1] + (QRgb)std::floor(S[y] * C);
+        // rest pixels in row
+        for (int x = 1; x < width; ++x) {
+            image[y * width + x] = image[y * width + x] + image[y * width + x - 1]
+                    + (QRgb)std::floor(S[height * x + y] * C);
+        }
+    }
+}
+
+void CmtIeaCipher::threadColumnSubstitution(const int threadIndex, const int threadsNumber, const int width,
+                                            const int height, const quint64 C, unsigned *image, double *S)
+{
+    for (int x = threadIndex; x < width; x += threadsNumber) {
+        // the first pixel in column
+        image[x] = image[x] + image[(height - 1) * width + x] + (QRgb)std::floor(S[height * x] * C);
+        // rest pixels in column
+        for (int y = 1; y < height; ++y) {
+            image[y * width + x] = image[y * width + x] + image[(y - 1) * width + x]
+                    + (QRgb)std::floor(S[height * x + y] * C);
+        }
+    }
+}
+
+void CmtIeaCipher::reverseSubstitution(QImage &image)
 {
     const int width = image.width();
     const int height = image.height();
-    const quint64 coef = 0x100000000;
 
-    // 2-nd column substitution
-    for (int x = 0; x < width; ++x) {
-        // all pixels in column except the first one
-        for (int y = height - 1; y > 0; --y) {
-            const QRgb shift = image.pixel(x, y - 1) + (QRgb)std::floor(S2[height * x + y] * coef);
-            const QRgb value = image.pixel(x, y) - shift;
-            image.setPixel(x, y, value);
-        }
-        // the first pixel in column
-        {
-            const QRgb shift = image.pixel(x, height - 1) + (QRgb)std::floor(S2[height * x] * coef);
-            const QRgb value = image.pixel(x, 0) - shift;
-            image.setPixel(x, 0, value);
-        }
+    int threadsNumber = std::thread::hardware_concurrency();
+    if (threadsNumber <= 0 ) threadsNumber = 1;
+    std::vector<std::thread> threadsPool;
+
+    // create many threads and reverse substitute pixels using S1 matrix
+
+    // substitute columns
+    for (int i = 1; i < threadsNumber; ++i) {
+        threadsPool.push_back(std::move(std::thread(threadReverseColumnSubstitution, i, threadsNumber,
+                                                    width, height, C, (QRgb *)image.bits(), S2)));
     }
+    threadReverseColumnSubstitution(0, threadsNumber, width, height, C, (QRgb *)image.bits(), S2);
+    for (auto it = threadsPool.begin(); it != threadsPool.end(); ++it) {
+        it->join();
+    }
+    threadsPool.clear();
 
-    // 2-nd row substitution
-    for (int y = 0; y < height; ++y) {
+    //substitute rows
+    for (int i = 1; i < threadsNumber; ++i) {
+        threadsPool.push_back(std::move(std::thread(threadReverseRowSubstitution, i, threadsNumber,
+                                                    width, height, C, (QRgb *)image.bits(), S2)));
+    }
+    threadReverseRowSubstitution(0, threadsNumber, width, height, C, (QRgb *)image.bits(), S2);
+    for (auto it = threadsPool.begin(); it != threadsPool.end(); ++it) {
+        it->join();
+    }
+    threadsPool.clear();
+
+    // create many threads and reverse substitute pixels using S1 matrix
+
+    // substitute columns
+    for (int i = 1; i < threadsNumber; ++i) {
+        threadsPool.push_back(std::move(std::thread(threadReverseColumnSubstitution, i, threadsNumber,
+                                                    width, height, C, (QRgb *)image.bits(), S1)));
+    }
+    threadReverseColumnSubstitution(0, threadsNumber, width, height, C, (QRgb *)image.bits(), S1);
+    for (auto it = threadsPool.begin(); it != threadsPool.end(); ++it) {
+        it->join();
+    }
+    threadsPool.clear();
+
+    //substitute rows
+    for (int i = 1; i < threadsNumber; ++i) {
+        threadsPool.push_back(std::move(std::thread(threadReverseRowSubstitution, i, threadsNumber,
+                                                    width, height, C, (QRgb *)image.bits(), S1)));
+    }
+    threadReverseRowSubstitution(0, threadsNumber, width, height, C, (QRgb *)image.bits(), S1);
+    for (auto it = threadsPool.begin(); it != threadsPool.end(); ++it) {
+        it->join();
+    }
+}
+
+void CmtIeaCipher::threadReverseRowSubstitution(const int threadIndex, const int threadsNumber, const int width,
+                                                const int height, const quint64 C, unsigned *image, double *S)
+{
+    for (int y = threadIndex; y < height; y += threadsNumber) {
         // all pixels in row except the first one
         for (int x = width - 1; x > 0; --x) {
-            const QRgb shift = image.pixel(x - 1, y) + (QRgb)std::floor(S2[height * x + y] * coef);
-            const QRgb value = image.pixel(x, y) - shift;
-            image.setPixel(x, y, value);
+            image[y * width + x] = image[y * width + x] - image[y * width + x - 1]
+                    - (QRgb)std::floor(S[height * x + y] * C);
         }
         // the first pixel in row
-        {
-            const QRgb shift = image.pixel(width - 1, y) + (QRgb)std::floor(S2[y] * coef);
-            const QRgb value = image.pixel(0, y) - shift;
-            image.setPixel(0, y, value);
-        }
+        image[y * width] = image[y * width] - image[(y + 1) * width - 1] - (QRgb)std::floor(S[y] * C);
     }
+}
 
-    // 1-st column substitution
-    for (int x = 0; x < width; ++x) {
+void CmtIeaCipher::threadReverseColumnSubstitution(const int threadIndex, const int threadsNumber, const int width,
+                                                   const int height, const quint64 C, unsigned *image, double *S)
+{
+    for (int x = threadIndex; x < width; x += threadsNumber) {
         // all pixels in column except the first one
         for (int y = height - 1; y > 0; --y) {
-            const QRgb shift = image.pixel(x, y - 1) + (QRgb)std::floor(S1[height * x + y] * coef);
-            const QRgb value = image.pixel(x, y) - shift;
-            image.setPixel(x, y, value);
+            image[y * width + x] = image[y * width + x] - image[(y - 1) * width + x]
+                    - (QRgb)std::floor(S[height * x + y] * C);
         }
         // the first pixel in column
-        {
-            const QRgb shift = image.pixel(x, height - 1) + (QRgb)std::floor(S1[height * x] * coef);
-            const QRgb value = image.pixel(x, 0) - shift;
-            image.setPixel(x, 0, value);
-        }
-    }
-
-    // 1-st row substitution
-    for (int y = 0; y < height; ++y) {
-        // all pixels in row except the first one
-        for (int x = width - 1; x > 0; --x) {
-            const QRgb shift = image.pixel(x - 1, y) + (QRgb)std::floor(S1[height * x + y] * coef);
-            const QRgb value = image.pixel(x, y) - shift;
-            image.setPixel(x, y, value);
-        }
-        // the first pixel in row
-        {
-            const QRgb shift = image.pixel(width - 1, y) + (QRgb)std::floor(S1[y] * coef);
-            const QRgb value = image.pixel(0, y) - shift;
-            image.setPixel(0, y, value);
-        }
+        image[x] = image[x] - image[(height - 1) * width + x] - (QRgb)std::floor(S[height * x] * C);
     }
 }
 

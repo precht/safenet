@@ -37,7 +37,7 @@ int main(int argc, char *argv[])
     CmtIeaCipher cipher;
     QImage other(original);
     cipher.encrypt(other);
-    other.save("encrypted.jpg");
+    other.save("encrypted1.jpg");
     cipher.decrypt(other);
 
     qInfo() << "(orginal == decrypted) is:" << (original == other);
