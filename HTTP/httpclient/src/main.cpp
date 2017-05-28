@@ -15,8 +15,14 @@ int main(int argc, char *argv[])
     Manager manager;
     //manager.downloadKey();
     //manager.uploadKey();
-    manager.downloadImage();
-    //manager.uploadImage();
+
+    //file to be downloaded at server working directory
+    //manager.downloadImage();
+
+
+    //file to be uploaded located in home directory
+    QString fileNameForUpload = "lena.png";
+    manager.uploadImage(fileNameForUpload);
 
 
     return a.exec();

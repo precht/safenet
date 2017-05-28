@@ -12,12 +12,12 @@ void KeyUploader::doUpload() {
             this, SLOT(replyFinished(QNetworkReply*)));*/
 
 
-
-    qDebug() << "key uploader doUpload";
     QUrl url("https://localhost:8085/api/upload/key");
 
 
     QUrlQuery query;
+
+    //in place of "akey" we need to add our key to be sent
     query.addQueryItem("key","akey");
 
 
@@ -38,7 +38,6 @@ void KeyUploader::doUpload() {
 void KeyUploader::replyFinished (QNetworkReply *reply)
 {
 
-    qDebug() << "ku replyfinished";
     if(reply->error())
     {
         qDebug() << "ERROR!";

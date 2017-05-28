@@ -41,8 +41,8 @@ void Manager::uploadKey() {
 }
 
 
-void Manager::uploadImage() {
-    iu->doUpload();
+void Manager::uploadImage(QString fileName) {
+    iu->doUpload(fileName);
 }
 
 void Manager::downloadKey() {

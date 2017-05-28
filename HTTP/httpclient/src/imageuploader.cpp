@@ -7,17 +7,15 @@ ImageUploader::ImageUploader(QNetworkAccessManager *aManager, QObject *parent) :
 }
 
 
-void ImageUploader::doUpload() {
+void ImageUploader::doUpload(QString fileName) {
 
-
-    qDebug() << "upload";
     /*connect(manager, SIGNAL(finished(QNetworkReply*)),
             this, SLOT(replyFinished(QNetworkReply*)));*/
 
 
     //file to be uploaded
     QString homePath = QStandardPaths::writableLocation(QStandardPaths::HomeLocation);
-    QString absoluteFilePath(homePath + "/lena.png");
+    QString absoluteFilePath(homePath + "/" + fileName);
 
 
     QUrl url("https://localhost:8085/api/upload/image");
@@ -30,7 +28,7 @@ void ImageUploader::doUpload() {
 
 
     //name of file seen by server
-    QString destinationFileName("lena3.png");
+    QString destinationFileName("senttoserver.png");
     QHttpPart imagePart;
     imagePart.setHeader(QNetworkRequest::ContentDispositionHeader, QVariant("form-data; name=\"file\"; filename=\"" + destinationFileName + "\""));
     QFile *file = new QFile(absoluteFilePath);

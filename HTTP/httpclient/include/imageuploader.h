@@ -19,7 +19,7 @@ class ImageUploader : public QObject
     Q_OBJECT
 public:
     explicit ImageUploader(QNetworkAccessManager *aManager = 0, QObject *parent = 0);
-    void doUpload();
+    void doUpload(QString fileName);
 signals:
 
 public slots:

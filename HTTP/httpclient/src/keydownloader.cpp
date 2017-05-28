@@ -8,7 +8,6 @@ KeyDownloader::KeyDownloader(QNetworkAccessManager *aManager, QObject *parent) :
 
 void KeyDownloader::doDownload(){
 
-    qDebug() << "key downloader do download";
     desktopPath = QStandardPaths::writableLocation(QStandardPaths::DesktopLocation);
 
   /*  connect(manager, SIGNAL(finished(QNetworkReply*)),
@@ -33,7 +32,6 @@ void KeyDownloader::doDownload(){
 
 void KeyDownloader::replyFinished (QNetworkReply *reply)
 {
-    qDebug() << "kd: replyfinished";
 
     if(reply->error())
     {

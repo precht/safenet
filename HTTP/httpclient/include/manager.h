@@ -18,7 +18,7 @@ class Manager : public QObject
 public:
     explicit Manager(QObject *parent = 0);
     void uploadKey();
-    void uploadImage();
+    void uploadImage(QString fileName);
     void downloadKey();
     void downloadImage();
 
