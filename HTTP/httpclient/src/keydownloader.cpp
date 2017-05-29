@@ -22,16 +22,20 @@ void KeyDownloader::doDownload(){
     request.setSslConfiguration(config);
 
     request.setOriginatingObject(this);
-    manager->get(request);
+    QNetworkReply *reply = manager->get(request);
    /* connect( aReply, SIGNAL(sslErrors(const QList<QSslError> &)),
                  this, SLOT(sslError(const QList<QSslError> &)) );*/
 
+    QEventLoop loop;
+    connect(reply, SIGNAL(finished()), &loop, SLOT(quit()));
+    loop.exec();
 
 }
 
 
 void KeyDownloader::replyFinished (QNetworkReply *reply)
 {
+    qDebug() << "Key downloader";
 
     if(reply->error())
     {
@@ -48,8 +52,8 @@ void KeyDownloader::replyFinished (QNetworkReply *reply)
 
         QString fileToWrite = desktopPath + "/downloadedkey.txt";
         QFile *file = new QFile(fileToWrite);
-        if(file->open(QFile::Append))
-        //if(file->open(QFile::ReadWrite | QFile::Truncate))
+        //if(file->open(QFile::Append))
+        if(file->open(QFile::ReadWrite | QFile::Truncate))
         {
             file->write(reply->readAll());
             file->flush();

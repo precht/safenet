@@ -12,6 +12,7 @@
 #include <QHttpMultiPart>
 #include <QFileInfo>
 #include <QStandardPaths>
+#include <QEventLoop>
 
 
 class ImageUploader : public QObject

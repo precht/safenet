@@ -6,6 +6,8 @@ Manager::Manager(QObject *parent) : QObject(parent)
 
    connect(manager, SIGNAL(finished(QNetworkReply*)),
             this, SLOT(handle(QNetworkReply*)));
+
+
     kd = new KeyDownloader(manager);
     ku = new KeyUploader(manager);
     id = new ImageDownloader(manager);

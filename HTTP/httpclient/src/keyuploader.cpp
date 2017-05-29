@@ -30,8 +30,11 @@ void KeyUploader::doUpload() {
     request.setSslConfiguration(config);
     request.setOriginatingObject(this);
 
-    manager->post(request, query.toString(QUrl::FullyEncoded).toUtf8());
+    QNetworkReply *reply = manager->post(request, query.toString(QUrl::FullyEncoded).toUtf8());
 
+    QEventLoop loop;
+    connect(reply, SIGNAL(finished()), &loop, SLOT(quit()));
+    loop.exec();
 }
 
 

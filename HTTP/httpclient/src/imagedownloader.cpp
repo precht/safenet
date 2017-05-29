@@ -29,8 +29,11 @@ void ImageDownloader::doDownload(){
 
     request.setOriginatingObject(this);
 
-    manager->get(request);
+    QNetworkReply *reply = manager->get(request);
 
+    QEventLoop loop;
+    connect(reply, SIGNAL(finished()), &loop, SLOT(quit()));
+    loop.exec();
 }
 
 

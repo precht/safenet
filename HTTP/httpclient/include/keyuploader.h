@@ -8,6 +8,7 @@
 #include <QUrl>
 #include <QUrlQuery>
 #include <QFile>
+#include <QEventLoop>
 
 class KeyUploader : public QObject
 {

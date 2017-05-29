@@ -11,6 +11,7 @@
 #include <QFile>
 #include <QDebug>
 #include <QStandardPaths>
+#include <QEventLoop>
 
 class ImageDownloader : public QObject
 {

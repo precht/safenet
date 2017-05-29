@@ -11,7 +11,7 @@
 #include <QDebug>
 #include <QStandardPaths>
 #include <QSslKey>
-#include <QThread>
+#include <QEventLoop>
 
 class KeyDownloader : public QObject
 {

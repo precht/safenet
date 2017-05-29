@@ -46,12 +46,17 @@ void ImageUploader::doUpload(QString fileName) {
 
     QNetworkReply *reply = manager->post(request, multiPart);
     multiPart->setParent(reply);
+
+    QEventLoop loop;
+    connect(reply, SIGNAL(finished()), &loop, SLOT(quit()));
+    loop.exec();
 }
 
 
 
 void ImageUploader::replyFinished (QNetworkReply *reply)
 {
+    qDebug() << "Image downloader";
     if(reply->error())
     {
         qDebug() << "ERROR!";
