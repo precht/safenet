@@ -11,45 +11,47 @@ Manager::Manager(QObject *parent) : QObject(parent)
     kd = new KeyDownloader(manager);
     ku = new KeyUploader(manager);
     id = new ImageDownloader(manager);
-    iu = new ImageUploader(manager);
+    iu = new ImageUploader(manager);\
 
+
+    address = QString("https://localhost:8085/api/");
 
 }
 
 void Manager::handle(QNetworkReply *reply) {
     QObject* object = reply->request().originatingObject();
     if (object == ku ) {
-        qDebug() << "ku";
         ku->replyFinished(reply);
     }
     else if (object == kd ) {
-        qDebug() << "kd";
          kd->replyFinished(reply);
     }
 
     else if (object == id ) {
-        qDebug() << "id";
         id->replyFinished(reply);
     }
     else if (object == iu ) {
-        qDebug() << "iu";
         iu->replyFinished(reply);
     }
 }
 
 void Manager::uploadKey() {
-    ku->doUpload();
+    ku->doUpload(address);
 }
 
 
 void Manager::uploadImage(QString fileName) {
-    iu->doUpload(fileName);
+    iu->doUpload(address, fileName);
 }
 
 void Manager::downloadKey() {
-    kd->doDownload();
+    kd->doDownload(address);
 }
 
 void Manager::downloadImage() {
-    id->doDownload();
+    id->doDownload(address);
+}
+
+void Manager::setAddress(QString IPaddress) {
+    this-> address = "https://" + IPaddress + ":8085/api/";
 }

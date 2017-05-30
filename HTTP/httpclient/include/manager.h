@@ -21,6 +21,7 @@ public:
     void uploadImage(QString fileName);
     void downloadKey();
     void downloadImage();
+    void setAddress(QString IPaddress);
 
 signals:
 
@@ -33,6 +34,7 @@ private:
     KeyUploader *ku;
     ImageDownloader *id;
     ImageUploader *iu;
+    QString address;
 };
 
 #endif // MANAGER_H

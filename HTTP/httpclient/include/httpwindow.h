@@ -2,7 +2,10 @@
 #define HTTPWINDOW_H
 
 #include <QDialog>
+#include <QtWidgets>
 #include "manager.h"
+
+
 
 class HttpWindow : public QDialog
 {
@@ -17,8 +20,10 @@ public slots:
 private slots:
     void doDownload();
     void doUpload();
+    void setAddress();
 
 private:
+    QLineEdit *IPLineEdit;
     QPushButton *downloadButton;
     QPushButton *uploadButton;
     Manager *manager;

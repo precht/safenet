@@ -7,7 +7,7 @@ ImageDownloader::ImageDownloader(QNetworkAccessManager *aManager, QObject *paren
 
 }
 
-void ImageDownloader::doDownload(){
+void ImageDownloader::doDownload(QString address){
 
     desktopPath = QStandardPaths::writableLocation(QStandardPaths::DesktopLocation);
 
@@ -15,11 +15,10 @@ void ImageDownloader::doDownload(){
             this, SLOT(replyFinished(QNetworkReply*)));*/
 
 
-
-    QUrl url("https://localhost:8085/api/download/image");
-    url.setPassword("me");
-
+    QString completeAddress = address.append(QString("download/image"));
+    QUrl url(completeAddress);
     request.setUrl(url);
+
 
     //turned off ssl verification
     SslConfig aConfig(false);
@@ -49,6 +48,9 @@ void ImageDownloader::doDownload(){
 
 void ImageDownloader::replyFinished(QNetworkReply* reply)
 {
+
+    qDebug() << "Image download";
+
     if(reply->error())
     {
         qDebug() << "ERROR!";

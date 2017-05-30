@@ -7,7 +7,7 @@ ImageUploader::ImageUploader(QNetworkAccessManager *aManager, QObject *parent) :
 }
 
 
-void ImageUploader::doUpload(QString fileName) {
+void ImageUploader::doUpload(QString address, QString fileName) {
 
     /*connect(manager, SIGNAL(finished(QNetworkReply*)),
             this, SLOT(replyFinished(QNetworkReply*)));*/
@@ -18,8 +18,11 @@ void ImageUploader::doUpload(QString fileName) {
     QString absoluteFilePath(homePath + "/" + fileName);
 
 
-    QUrl url("https://localhost:8085/api/upload/image");
+    QString completeAddress = address.append(QString("upload/image"));
+    QUrl url(completeAddress);
     request.setUrl(url);
+
+
     request.setHeader(QNetworkRequest::ContentTypeHeader, QVariant(QString("multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW")));
 
 
@@ -66,7 +69,7 @@ void ImageUploader::doUpload(QString fileName) {
 
 void ImageUploader::replyFinished (QNetworkReply *reply)
 {
-    qDebug() << "Image uploader";
+    qDebug() << "Image upload";
     if(reply->error())
     {
         qDebug() << "ERROR!";

@@ -16,7 +16,7 @@ class KeyUploader : public QObject
 
 public:
     explicit KeyUploader(QNetworkAccessManager *aManager = 0, QObject *parent = 0);
-    void doUpload();
+    void doUpload(QString address);
 
 signals:
 

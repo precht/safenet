@@ -6,13 +6,14 @@ KeyUploader::KeyUploader(QNetworkAccessManager *aManager, QObject *parent) : man
 
 }
 
-void KeyUploader::doUpload() {
+void KeyUploader::doUpload(QString address) {
 
   /*  connect(manager, SIGNAL(finished(QNetworkReply*)),
             this, SLOT(replyFinished(QNetworkReply*)));*/
 
 
-    QUrl url("https://localhost:8085/api/upload/key");
+    QString completeAddress = address.append(QString("upload/key"));
+    QUrl url(completeAddress);
 
 
     QUrlQuery query;
@@ -50,6 +51,7 @@ void KeyUploader::doUpload() {
 
 void KeyUploader::replyFinished (QNetworkReply *reply)
 {
+    qDebug() << "Key upload";
 
     if(reply->error())
     {

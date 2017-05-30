@@ -2,20 +2,42 @@
 #include "manager.h"
 #include <QtWidgets>
 
+
+static const char defaultIP[] = "localhost";
+
 HttpWindow::HttpWindow(Manager *manager, QWidget *parent) : manager(manager), QDialog(parent)
       , downloadButton(new QPushButton(tr("Download")))
       , uploadButton(new QPushButton(tr("Upload")))
+      , IPLineEdit(new QLineEdit(defaultIP))
+
+
 {
     setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
     setWindowTitle(tr("HttpClient"));
-    QHBoxLayout *mainLayout = new QHBoxLayout(this);
+
+    connect(IPLineEdit, &QLineEdit::textChanged,
+                this, &HttpWindow::setAddress);
+
+    QFormLayout *formLayout = new QFormLayout;
+    formLayout->addRow(tr("IP:"), IPLineEdit);
+
+
+    QVBoxLayout *mainLayout = new QVBoxLayout(this);
+    mainLayout->addLayout(formLayout);
+    mainLayout->addItem(new QSpacerItem(0, 0, QSizePolicy::Ignored, QSizePolicy::MinimumExpanding));
+
+    QPushButton *quitButton = new QPushButton(tr("Quit"));
+    quitButton->setAutoDefault(false);
+    connect(quitButton, &QAbstractButton::clicked, this, &QWidget::close);
 
     QDialogButtonBox *buttonBox = new QDialogButtonBox;
     buttonBox->addButton(downloadButton, QDialogButtonBox::ActionRole);
     buttonBox->addButton(uploadButton, QDialogButtonBox::ActionRole);
+    buttonBox->addButton(quitButton, QDialogButtonBox::RejectRole);
 
     connect(downloadButton, &QAbstractButton::clicked, this, &HttpWindow::doDownload);
     connect(uploadButton, &QAbstractButton::clicked, this, &HttpWindow::doUpload);
+
 
     mainLayout->addWidget(buttonBox);
 
@@ -23,6 +45,7 @@ HttpWindow::HttpWindow(Manager *manager, QWidget *parent) : manager(manager), QD
 
 
 void HttpWindow::doDownload(){
+
     manager->downloadKey();
 
     //file to be downloaded at server working directory
@@ -37,4 +60,9 @@ void HttpWindow::doUpload(){
     QString fileNameForUpload = "lena.png";
     manager->uploadImage(fileNameForUpload);
 
+}
+
+void HttpWindow::setAddress() {
+    const QString IPaddress = IPLineEdit->text().trimmed();
+    manager->setAddress(IPaddress);
 }

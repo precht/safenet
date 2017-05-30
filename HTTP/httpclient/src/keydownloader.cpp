@@ -6,7 +6,7 @@ KeyDownloader::KeyDownloader(QNetworkAccessManager *aManager, QObject *parent) :
 
 }
 
-void KeyDownloader::doDownload(){
+void KeyDownloader::doDownload(QString address){
 
     desktopPath = QStandardPaths::writableLocation(QStandardPaths::DesktopLocation);
 
@@ -14,7 +14,9 @@ void KeyDownloader::doDownload(){
             this, SLOT(replyFinished(QNetworkReply*)));*/
 
 
-    QUrl url("https://localhost:8085/api/download/key");
+
+    QString completeAddress = address.append(QString("download/key"));
+    QUrl url(completeAddress);
     request.setUrl(url);
 
 
@@ -51,6 +53,7 @@ void KeyDownloader::doDownload(){
 
 void KeyDownloader::replyFinished (QNetworkReply *reply)
 {
+    qDebug() << "Key download";
 
     if(reply->error())
     {
