@@ -1,3 +1,7 @@
+/**
+  Algorithm uses chaotic magic transform based on 2D sine logistic modulation map.
+  */
+
 #ifndef CMTCIPHER_H
 #define CMTCIPHER_H
 

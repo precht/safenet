@@ -5,8 +5,8 @@
 #include <QDebug>
 
 #include <cmath>
-#include <iostream>
 #include <thread>
+#include <iostream>
 
 CmtIeaCipher::~CmtIeaCipher()
 {
@@ -316,7 +316,7 @@ void CmtIeaCipher::reverseSubstitution(QImage &image)
     if (threadsNumber <= 0 ) threadsNumber = 1;
     std::vector<std::thread> threadsPool;
 
-    // create many threads and reverse substitute pixels using S1 matrix
+    // create many threads and reverse substitute pixels using S2 matrix
 
     // substitute columns
     for (int i = 1; i < threadsNumber; ++i) {

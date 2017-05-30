@@ -34,13 +34,28 @@ int main(int argc, char *argv[])
     QElapsedTimer timer;
     timer.start();
 
+    // encrypt image and save to file
     CmtIeaCipher cipher;
-    QImage other(original);
-    cipher.encrypt(other);
-    other.save("encrypted1.jpg");
-    cipher.decrypt(other);
+    QImage toEncrypt(original);
+    cipher.encrypt(toEncrypt);
+    toEncrypt.save("encrypted.png");
 
-    qInfo() << "(orginal == decrypted) is:" << (original == other);
+    // load enctyped image from file
+    QImage toDecrypt("encrypted.png");
+    if (toDecrypt.isNull()) {
+        qCritical() << "Failed to load image: " << fileName;
+        QThread::msleep(500);
+        return -1;
+    }
+
+    // check if image loaded from file is identical to enctryped one
+    qInfo() << "(encryptedCreated == encryptedLoaded) is:" << (toEncrypt == toDecrypt);
+
+    // decrypt image
+    cipher.decrypt(toDecrypt);
+    toDecrypt.save("result.png");
+
+    qInfo() << "(orginal == decrypted) is:" << (original == toDecrypt);
     qInfo() << "time:" << timer.elapsed() << "ms";
 
     // qInfo runs on defferent thread, let's wait to make sure that msg gets to cerr before ending
