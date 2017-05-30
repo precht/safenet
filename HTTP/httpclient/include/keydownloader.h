@@ -23,7 +23,7 @@ public:
 signals:
 
 public slots:
-    void replyFinished(QNetworkReply*);
+    void replyFinished(QNetworkReply *reply);
     //void sslError( const QList<QSslError> &errors);
 
 private:

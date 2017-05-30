@@ -44,6 +44,16 @@ void ImageUploader::doUpload(QString fileName) {
 
     request.setOriginatingObject(this);
 
+
+    //login data for authorization
+    QString username("test");
+    QString password("test");
+    QString concatenated = username + ":" + password;
+    QByteArray data = concatenated.toLocal8Bit().toBase64();
+    QString headerData = "Basic " + data;
+    request.setRawHeader("Authorization", headerData.toLocal8Bit());
+
+
     QNetworkReply *reply = manager->post(request, multiPart);
     multiPart->setParent(reply);
 
@@ -56,7 +66,7 @@ void ImageUploader::doUpload(QString fileName) {
 
 void ImageUploader::replyFinished (QNetworkReply *reply)
 {
-    qDebug() << "Image downloader";
+    qDebug() << "Image uploader";
     if(reply->error())
     {
         qDebug() << "ERROR!";
@@ -69,6 +79,7 @@ void ImageUploader::replyFinished (QNetworkReply *reply)
         qDebug() << reply->header(QNetworkRequest::ContentLengthHeader).toULongLong();
         qDebug() << reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt();
         qDebug() << reply->attribute(QNetworkRequest::HttpReasonPhraseAttribute).toString();
+        qDebug() << "Connection encrypted: " << reply->attribute(QNetworkRequest::ConnectionEncryptedAttribute).toString();
     }
 
     reply->deleteLater();

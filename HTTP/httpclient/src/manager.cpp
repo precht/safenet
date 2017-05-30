@@ -4,7 +4,7 @@ Manager::Manager(QObject *parent) : QObject(parent)
 {
     this->manager = new QNetworkAccessManager(this);
 
-   connect(manager, SIGNAL(finished(QNetworkReply*)),
+    connect(manager, SIGNAL(finished(QNetworkReply*)),
             this, SLOT(handle(QNetworkReply*)));
 
 
@@ -24,7 +24,7 @@ void Manager::handle(QNetworkReply *reply) {
     }
     else if (object == kd ) {
         qDebug() << "kd";
-        kd->replyFinished(reply);
+         kd->replyFinished(reply);
     }
 
     else if (object == id ) {
@@ -36,7 +36,6 @@ void Manager::handle(QNetworkReply *reply) {
         iu->replyFinished(reply);
     }
 }
-
 
 void Manager::uploadKey() {
     ku->doUpload();

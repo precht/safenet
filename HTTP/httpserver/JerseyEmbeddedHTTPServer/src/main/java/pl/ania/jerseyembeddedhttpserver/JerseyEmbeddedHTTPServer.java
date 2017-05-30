@@ -22,15 +22,13 @@ import javax.ws.rs.core.UriBuilder;
  */
 public class JerseyEmbeddedHTTPServer {
 
-    
     public static void main(String[] args) throws IOException, NoSuchAlgorithmException, KeyManagementException {
         System.out.println("Starting Embedded Jersey HTTPServer...\n");
         HttpsServer hTTPsServer = createHttpServer();
-        
-        
-        System.out.println("Working Directory = " +
-              System.getProperty("user.dir"));
-        
+
+        System.out.println("Working Directory = "
+                + System.getProperty("user.dir"));
+
         //hTTPsServer.start();
         SimpleHttpsServer simpleServer = new SimpleHttpsServer(hTTPsServer);
         simpleServer.Start();
@@ -41,7 +39,12 @@ public class JerseyEmbeddedHTTPServer {
     private static HttpsServer createHttpServer() throws IOException {
         ResourceConfig resourceConfig = new PackagesResourceConfig("pl.ania.jerseyembeddedhttpserver");
         resourceConfig.getContainerResponseFilters().add(CORSFilter.class);
+        resourceConfig.getProperties().put(
+                "com.sun.jersey.spi.container.ContainerRequestFilters",
+                "pl.ania.jerseyembeddedhttpserver.AuthFilter");
+        
         return SecureServerFactory.create(getURI(), resourceConfig);
+
         //return HttpServerFactory.create(getURI(), resourceConfig);
     }
 

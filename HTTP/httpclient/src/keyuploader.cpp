@@ -30,6 +30,16 @@ void KeyUploader::doUpload() {
     request.setSslConfiguration(config);
     request.setOriginatingObject(this);
 
+
+    //login data for authorization
+    QString username("test");
+    QString password("test");
+    QString concatenated = username + ":" + password;
+    QByteArray data = concatenated.toLocal8Bit().toBase64();
+    QString headerData = "Basic " + data;
+    request.setRawHeader("Authorization", headerData.toLocal8Bit());
+
+
     QNetworkReply *reply = manager->post(request, query.toString(QUrl::FullyEncoded).toUtf8());
 
     QEventLoop loop;
@@ -54,6 +64,7 @@ void KeyUploader::replyFinished (QNetworkReply *reply)
         qDebug() << reply->header(QNetworkRequest::ContentLengthHeader).toULongLong();
         qDebug() << reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt();
         qDebug() << reply->attribute(QNetworkRequest::HttpReasonPhraseAttribute).toString();
+        qDebug() << "Connection encrypted: " << reply->attribute(QNetworkRequest::ConnectionEncryptedAttribute).toString();
 
 
     reply->deleteLater();

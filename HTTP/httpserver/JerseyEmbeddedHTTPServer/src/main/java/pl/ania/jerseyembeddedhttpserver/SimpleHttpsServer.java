@@ -5,6 +5,7 @@
  */
 package pl.ania.jerseyembeddedhttpserver;
 
+import com.sun.net.httpserver.BasicAuthenticator;
 import com.sun.net.httpserver.HttpsConfigurator;
 import com.sun.net.httpserver.HttpsParameters;
 import com.sun.net.httpserver.HttpsServer;
@@ -15,6 +16,7 @@ import java.security.KeyStore;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.security.UnrecoverableKeyException;
+import java.security.cert.Certificate;
 import java.security.cert.CertificateException;
 import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.SSLContext;
@@ -30,11 +32,17 @@ public class SimpleHttpsServer {
 
     private final HttpsServer server;
     private static final String PROTOCOL = "TLS";
-    
+
     public SimpleHttpsServer(HttpsServer aServer) {
         this.server = aServer;
-    }
 
+    /*    server.setAuthenticator(new BasicAuthenticator("get") {
+            @Override
+            public boolean checkCredentials(String user, String pwd) {
+                return user.equals("admin") && pwd.equals("password");
+            }
+        });*/
+    }
 
     public void Start() throws KeyManagementException {
         try {
@@ -42,14 +50,14 @@ public class SimpleHttpsServer {
             String keystoreFilename = getPath() + "mycert.keystore";
             char[] storepass = "mypassword".toCharArray();
             char[] keypass = "mypassword".toCharArray();
-            String alias = "alias";
+            String alias = "selfsigned";
             FileInputStream fIn = new FileInputStream(keystoreFilename);
             KeyStore keystore = KeyStore.getInstance("JKS");
             keystore.load(fIn, storepass);
             // display certificate
-//			Certificate cert = keystore.getCertificate(alias);
-//			System.out.println(cert);
-
+		//Certificate cert = keystore.getCertificate(alias);
+		//System.out.println(cert);
+                        
             // setup the key manager factory
             KeyManagerFactory kmf = KeyManagerFactory.getInstance("SunX509");
             kmf.init(keystore, keypass);
@@ -69,7 +77,8 @@ public class SimpleHttpsServer {
                         // initialise the SSL context
                         SSLContext c = SSLContext.getDefault();
                         SSLEngine engine = c.createSSLEngine();
-                        params.setNeedClientAuth(false);
+                        //params.setNeedClientAuth(false);
+                        params.setNeedClientAuth(true);
                         params.setCipherSuites(engine.getEnabledCipherSuites());
                         params.setProtocols(engine.getEnabledProtocols());
 
@@ -88,7 +97,7 @@ public class SimpleHttpsServer {
         } catch (IOException | NoSuchAlgorithmException | KeyStoreException | CertificateException | UnrecoverableKeyException e) {
             System.out.println(e);
         }
-        
+
     }
 
     private String getPath() {

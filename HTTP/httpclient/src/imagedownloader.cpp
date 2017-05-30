@@ -9,8 +9,6 @@ ImageDownloader::ImageDownloader(QNetworkAccessManager *aManager, QObject *paren
 
 void ImageDownloader::doDownload(){
 
-    qDebug() << "imagedownloaded do download";
-
     desktopPath = QStandardPaths::writableLocation(QStandardPaths::DesktopLocation);
 
   /*  connect(manager, SIGNAL(finished(QNetworkReply*)),
@@ -19,6 +17,7 @@ void ImageDownloader::doDownload(){
 
 
     QUrl url("https://localhost:8085/api/download/image");
+    url.setPassword("me");
 
     request.setUrl(url);
 
@@ -29,17 +28,27 @@ void ImageDownloader::doDownload(){
 
     request.setOriginatingObject(this);
 
+
+    //login data for authorization
+    QString username("test");
+    QString password("test");
+    QString concatenated = username + ":" + password;
+    QByteArray data = concatenated.toLocal8Bit().toBase64();
+    QString headerData = "Basic " + data;
+    request.setRawHeader("Authorization", headerData.toLocal8Bit());
+
+
     QNetworkReply *reply = manager->get(request);
 
     QEventLoop loop;
     connect(reply, SIGNAL(finished()), &loop, SLOT(quit()));
     loop.exec();
+
 }
 
 
 void ImageDownloader::replyFinished(QNetworkReply* reply)
 {
-    qDebug() << "get";
     if(reply->error())
     {
         qDebug() << "ERROR!";
@@ -53,6 +62,7 @@ void ImageDownloader::replyFinished(QNetworkReply* reply)
         qDebug() << reply->header(QNetworkRequest::ContentLengthHeader).toULongLong();
         qDebug() << reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt();
         qDebug() << reply->attribute(QNetworkRequest::HttpReasonPhraseAttribute).toString();
+        qDebug() << "Connection encrypted: " << reply->attribute(QNetworkRequest::ConnectionEncryptedAttribute).toString();
 
         QString fileToWrite = desktopPath + "/downloadedimage.png";
         QFile *file = new QFile(fileToWrite);

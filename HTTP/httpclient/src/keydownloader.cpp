@@ -17,13 +17,29 @@ void KeyDownloader::doDownload(){
     QUrl url("https://localhost:8085/api/download/key");
     request.setUrl(url);
 
+
+    //ssl configuration
     SslConfig aConfig(true);
     QSslConfiguration config = aConfig.getConfig();
     request.setSslConfiguration(config);
 
     request.setOriginatingObject(this);
+
+    //login data for authorization
+    QString username("test");
+    QString password("test");
+    QString concatenated = username + ":" + password;
+    QByteArray data = concatenated.toLocal8Bit().toBase64();
+    QString headerData = "Basic " + data;
+    request.setRawHeader("Authorization", headerData.toLocal8Bit());
+
+
+
     QNetworkReply *reply = manager->get(request);
-   /* connect( aReply, SIGNAL(sslErrors(const QList<QSslError> &)),
+
+
+    //to see presumable Ssl errors
+   /* connect(reply, SIGNAL(sslErrors(const QList<QSslError> &)),
                  this, SLOT(sslError(const QList<QSslError> &)) );*/
 
     QEventLoop loop;
@@ -35,7 +51,6 @@ void KeyDownloader::doDownload(){
 
 void KeyDownloader::replyFinished (QNetworkReply *reply)
 {
-    qDebug() << "Key downloader";
 
     if(reply->error())
     {
@@ -49,6 +64,7 @@ void KeyDownloader::replyFinished (QNetworkReply *reply)
         qDebug() << reply->header(QNetworkRequest::ContentLengthHeader).toULongLong();
         qDebug() << reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt();
         qDebug() << reply->attribute(QNetworkRequest::HttpReasonPhraseAttribute).toString();
+        qDebug() << "Connection encrypted: " << reply->attribute(QNetworkRequest::ConnectionEncryptedAttribute).toString();
 
         QString fileToWrite = desktopPath + "/downloadedkey.txt";
         QFile *file = new QFile(fileToWrite);
