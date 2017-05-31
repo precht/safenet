@@ -12,6 +12,8 @@
 #include <QDebug>
 #include <QStandardPaths>
 #include <QEventLoop>
+#include <QImage>
+#include <QTimer>
 
 class ImageDownloader : public QObject
 {
@@ -19,11 +21,13 @@ class ImageDownloader : public QObject
 public:
     explicit ImageDownloader(QNetworkAccessManager *aManager = 0, QObject *parent = 0);
     void doDownload(QString address);
-
+    void decrypt();
 signals:
+
 
 public slots:
     void replyFinished(QNetworkReply *reply);
+
 
 private:
     QNetworkAccessManager *manager;

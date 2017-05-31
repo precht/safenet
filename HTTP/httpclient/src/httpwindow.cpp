@@ -56,7 +56,7 @@ void HttpWindow::doUpload(){
 
     manager->uploadKey();
 
-    //file to be uploaded located in home directory
+    //file to be uploaded located in working directory
     QString fileNameForUpload = "lena.png";
     manager->uploadImage(fileNameForUpload);
 

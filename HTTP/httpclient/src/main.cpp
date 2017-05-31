@@ -2,6 +2,7 @@
 
 #include "manager.h"
 #include "httpwindow.h"
+#include "cipher.h"
 
 
 int main(int argc, char *argv[])
@@ -19,5 +20,6 @@ int main(int argc, char *argv[])
     hw.show();
 
     return a.exec();
+
 
 }

@@ -58,11 +58,11 @@ public class API {
     //File - lena.png in user's home directory
     @GET
     @Path("/download/image")
-    @Produces({"image/png", "image/jpg", "image/gif"})
+    @Produces({"image/png", "image/jpg", "image/gif", "image/bmp"})
     public Response downloadImageFile() {
 
         // set file (and path) to be downloaded
-        String path = System.getProperty("user.home") + "/lena.png";
+        String path = System.getProperty("user.dir") + "/senttoserver.png";
         File file = new File(path);
 
         ResponseBuilder responseBuilder = Response.ok((Object) file);

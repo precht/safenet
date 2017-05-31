@@ -13,6 +13,7 @@
 #include <QFileInfo>
 #include <QStandardPaths>
 #include <QEventLoop>
+#include <QImage>
 
 
 class ImageUploader : public QObject
@@ -21,6 +22,7 @@ class ImageUploader : public QObject
 public:
     explicit ImageUploader(QNetworkAccessManager *aManager = 0, QObject *parent = 0);
     void doUpload(QString address, QString fileName);
+    void encrypt(QImage original);
 signals:
 
 public slots:

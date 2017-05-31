@@ -1,5 +1,7 @@
 #include "imageuploader.h"
 #include "sslconfig.h"
+#include "cipher.h"
+#include <QDir>
 
 ImageUploader::ImageUploader(QNetworkAccessManager *aManager, QObject *parent) : manager(aManager), QObject(parent)
 {
@@ -12,11 +14,13 @@ void ImageUploader::doUpload(QString address, QString fileName) {
     /*connect(manager, SIGNAL(finished(QNetworkReply*)),
             this, SLOT(replyFinished(QNetworkReply*)));*/
 
+    //encryption
+    QImage original(fileName);
+    encrypt(original);
 
-    //file to be uploaded
-    QString homePath = QStandardPaths::writableLocation(QStandardPaths::HomeLocation);
-    QString absoluteFilePath(homePath + "/" + fileName);
 
+    //this file we will send
+    QString fileToSend("encrypted.png");
 
     QString completeAddress = address.append(QString("upload/image"));
     QUrl url(completeAddress);
@@ -34,7 +38,7 @@ void ImageUploader::doUpload(QString address, QString fileName) {
     QString destinationFileName("senttoserver.png");
     QHttpPart imagePart;
     imagePart.setHeader(QNetworkRequest::ContentDispositionHeader, QVariant("form-data; name=\"file\"; filename=\"" + destinationFileName + "\""));
-    QFile *file = new QFile(absoluteFilePath);
+    QFile *file = new QFile(fileToSend);
     file->open(QIODevice::ReadOnly);
     imagePart.setBodyDevice(file);
 
@@ -86,4 +90,11 @@ void ImageUploader::replyFinished (QNetworkReply *reply)
     }
 
     reply->deleteLater();
+}
+
+void ImageUploader::encrypt(QImage original){
+    CmtIeaCipher cipher;
+    QImage other(original);
+    cipher.encrypt(other);
+    other.save("encrypted.png");
 }

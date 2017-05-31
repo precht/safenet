@@ -50,6 +50,7 @@ void Manager::downloadKey() {
 
 void Manager::downloadImage() {
     id->doDownload(address);
+    id->decrypt();
 }
 
 void Manager::setAddress(QString IPaddress) {

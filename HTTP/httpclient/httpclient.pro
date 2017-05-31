@@ -15,17 +15,21 @@ HEADERS += \
     include/keyuploader.h \
     include/manager.h \
     include/sslconfig.h \
-    include/httpwindow.h
+    include/httpwindow.h \
+    include/cipher.h \
+    include/key.h
 
 SOURCES += \
     src/imagedownloader.cpp \
     src/imageuploader.cpp \
     src/keydownloader.cpp \
     src/keyuploader.cpp \
+    src/main.cpp \
     src/manager.cpp \
     src/sslconfig.cpp \
     src/httpwindow.cpp \
-    src/main.cpp
+    src/cipher.cpp \
+    src/key.cpp
 
 RESOURCES += \
     certificates.qrc
