@@ -54,6 +54,8 @@ void ImageDownloader::replyFinished(QNetworkReply* reply)
     {
         qDebug() << "ERROR!";
         qDebug() << reply->errorString();
+        qDebug() << reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt();
+        qDebug() << reply->attribute(QNetworkRequest::HttpReasonPhraseAttribute).toString();
     }
     else
     {

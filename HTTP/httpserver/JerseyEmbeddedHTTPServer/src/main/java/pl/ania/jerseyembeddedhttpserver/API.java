@@ -65,9 +65,16 @@ public class API {
         String path = System.getProperty("user.dir") + "/senttoserver.png";
         File file = new File(path);
 
-        ResponseBuilder responseBuilder = Response.ok((Object) file);
-        responseBuilder.header("Content-Disposition", "attachment; filename=\"lena.png\"");
-        return responseBuilder.build();
+        if (file.exists()) {
+            ResponseBuilder responseBuilder = Response.ok((Object) file);
+            responseBuilder.header("Content-Disposition", "attachment; filename=\"lena.png\"");
+            return responseBuilder.build();
+        }
+        
+        else {
+            return Response.status(Response.Status.NOT_FOUND).build();
+        }
+
     }
 
     //UPLOADING IMAGE TO SERVER
@@ -77,7 +84,7 @@ public class API {
     @Consumes(MediaType.MULTIPART_FORM_DATA)
     public Response uploadTextFile(
             @FormDataParam("file") InputStream fileInputStream,
-             @FormDataParam("file") FormDataContentDisposition fileFormDataContentDisposition
+            @FormDataParam("file") FormDataContentDisposition fileFormDataContentDisposition
     ) {
         String fileName = null;
         String uploadFilePath = null;

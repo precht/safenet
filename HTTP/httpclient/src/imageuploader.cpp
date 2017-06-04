@@ -16,6 +16,12 @@ void ImageUploader::doUpload(QString address, QString fileName) {
 
     //encryption
     QImage original(fileName);
+
+    if (original.isNull()) {
+        qDebug() << "Failed to load the image";
+        qDebug() << "Make sure you have 'lena.png' at: " << QDir::currentPath();
+        return;
+    }
     encrypt(original);
 
 
