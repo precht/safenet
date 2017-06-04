@@ -15,16 +15,19 @@ void KeyUploader::doUpload(QString address) {
     QString completeAddress = address.append(QString("upload/key"));
     QUrl url(completeAddress);
 
+    request.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
+    QJsonObject json {
+        {"x", K.x},
+        {"y", K.y},
+        {"a", K.a},
+        {"h", K.H},
+        {"g1", K.G1},
+        {"g2", K.G2},
+    };
 
-    QUrlQuery query;
 
-    //in place of "akey" we need to add our key to be sent
-    query.addQueryItem("key","akey");
-
-
-    url.setQuery(query);
     request.setUrl(url);
-    request.setHeader(QNetworkRequest::ContentTypeHeader,"application/x-www-form-urlencoded");
+
 
     SslConfig aConfig(true);
     QSslConfiguration config = aConfig.getConfig();
@@ -41,7 +44,7 @@ void KeyUploader::doUpload(QString address) {
     request.setRawHeader("Authorization", headerData.toLocal8Bit());
 
 
-    QNetworkReply *reply = manager->post(request, query.toString(QUrl::FullyEncoded).toUtf8());
+    QNetworkReply *reply = manager->post(request, QJsonDocument(json).toJson());
 
     QEventLoop loop;
     connect(reply, SIGNAL(finished()), &loop, SLOT(quit()));

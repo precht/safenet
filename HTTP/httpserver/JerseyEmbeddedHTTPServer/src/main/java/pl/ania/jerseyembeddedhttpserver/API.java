@@ -15,7 +15,6 @@ import java.io.OutputStream;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Consumes;
-import javax.ws.rs.FormParam;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
@@ -30,28 +29,39 @@ import javax.ws.rs.core.Response.ResponseBuilder;
 public class API {
 
     private static final String UPLOAD_FILE_SERVER = System.getProperty("user.dir") + "/";
-    private String key = "KEY";
+    private Key key;
 
     // DOWNLOADING KEY FROM SERVER
     @GET
     @Path("/download/key")
-    @Produces(MediaType.TEXT_HTML)
-    public String downloadKey() {
-        System.out.println("downloading...");
-        return key;
+    @Produces(MediaType.APPLICATION_JSON)
+    public Key downloadKey() {
+        Key aKey = new Key();
+        aKey.setX(1.25);
+        aKey.setY(1.25);
+        aKey.setA(1.25);
+        aKey.setH(1.25);
+        aKey.setG1(1);
+        aKey.setG2(1);
+        key = aKey;
+        return aKey;
     }
 
     // UPLOADING KEY TO SERVER
     @POST
+    @Consumes({MediaType.APPLICATION_JSON})
+    @Produces({MediaType.TEXT_PLAIN})
     @Path("/upload/key")
-    @Produces(MediaType.TEXT_HTML)
-    @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
+    public String uploadKey(Key key) throws Exception {
+        
+        System.out.println(key.getX());
+        System.out.println(key.getY());
+        System.out.println(key.getA());
+        System.out.println(key.getH());
+        System.out.println(key.getG1());
+        System.out.println(key.getG2());
 
-    public Response readKey(
-            @FormParam("key") String sentKey) {
-        key = sentKey;
-        System.out.println(key);
-        return Response.status(200).build();
+        return "ok";
     }
 
     //DOWNLOADING IMAGE FROM SERVER
@@ -69,9 +79,7 @@ public class API {
             ResponseBuilder responseBuilder = Response.ok((Object) file);
             responseBuilder.header("Content-Disposition", "attachment; filename=\"lena.png\"");
             return responseBuilder.build();
-        }
-        
-        else {
+        } else {
             return Response.status(Response.Status.NOT_FOUND).build();
         }
 

@@ -9,6 +9,10 @@
 #include <QUrlQuery>
 #include <QFile>
 #include <QEventLoop>
+#include <QJsonDocument>
+#include <QJsonObject>
+
+#include "key.h"
 
 class KeyUploader : public QObject
 {
@@ -26,6 +30,7 @@ public slots:
 private:
     QNetworkAccessManager *manager;
     QNetworkRequest request;
+    Key K;
 };
 
 #endif // KEYUPLOADER_H
