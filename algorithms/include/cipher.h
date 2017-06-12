@@ -23,7 +23,7 @@ struct Pair {
 class CmtIeaCipher
 {
 public:
-    CmtIeaCipher() = default;
+    CmtIeaCipher(int cyclesNo = 2);
     ~CmtIeaCipher();
     void encrypt(QImage &image);
     void decrypt(QImage &image);
@@ -34,8 +34,9 @@ private:
 
     // funcition to generate chaotic matrices and translation matrixes based of key and size
     void slmm2d(const QSize &size);
-    static void threadSlmm2dSort(const int threadIndex, const int width, const int height, const int threadsNumber,
-                                 Pair *T1, Pair *T2);
+    static void threadSlmm2dSort1(const int threadIndex, const int threadsNumber, const int width, const int height, Pair *T);
+    static void threadSlmm2dSort2(const int threadIndex, const int threadsNumber, const int width, const int height,
+                                               Pair *T1, Pair *T2);
 
     // chaotic magic transform and its reverse
     void cmt(QImage &image);
@@ -57,6 +58,7 @@ private:
     static void threadReverseColumnSubstitution(const int threadIndex, const int threadsNumber, const int width,
                                                 const int height, const quint64 C, unsigned *image, double *S);
 
+    const bool manyCycles;
     const quint64 C = 0x100000000; // substitution coeficient
     const double PI = 3.14159265358979323846;
     const int B = 3;

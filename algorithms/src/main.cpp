@@ -8,57 +8,110 @@
 #include <QImageReader>
 #include <QElapsedTimer>
 
+#include <cstring>
+
+// this define makes qt-creator wait for outputs from all threads
+//#define INSIDE_QT_CREATOR
+
+const QString HELP_MSG = "   Options:\n"
+                         "   --enc\n"
+                         "   --dec\n"
+                         "   --in <file>\n"
+                         "   --out <file>\n"
+                         "   --cycles [1..2](=2)\n"
+                         "   --help";
+
+int finish(int val) {
+#ifdef INSIDE_QT_CREATOR
+    QThread::msleep(500);
+#endif
+    return val;
+}
+
 int main(int argc, char *argv[])
 {
-    if (argc < 2) {
-        qCritical() << "Pass file name as application argument.";
-        QThread::msleep(500);
-        return -1;
-    }
+    bool encOption = false;
+    bool decOption = false;
+    int cyclesOption = 2;
+    QString inPath;
+    QString outPath;
 
-//    QImage original(5, 3, QImage::Format_ARGB32);
-//    for (int i = 0; i < 5; i++) {
-//        for (int j = 0; j < 3; j++) {
-//            original.setPixel(i, j, 5 * j + i);
-//        }
+    int p = 0;
+    while (++p < argc) {
+        if (std::strcmp(argv[p], "--help") == 0) {
+            qInfo().noquote() << HELP_MSG;
+            return finish(-1);
+        }
+        if (std::strcmp(argv[p], "--cycles") == 0) {
+            int val = QString(argv[++p]).toInt();
+            if (val == 1 || val == 2) {
+                cyclesOption = val;
+            } else {
+                qInfo() << "WARNING: Wrong number of cycles, setting default (=2)";
+            }
+            continue;
+        }
+        if (std::strcmp(argv[p], "--enc") == 0) {
+            encOption = true;
+            continue;
+        }
+        if (std::strcmp(argv[p], "--dec") == 0) {
+            decOption = true;
+            continue;
+        }
+        if (std::strcmp(argv[p], "--in") == 0) {
+            inPath = argv[++p];
+            continue;
+        }
+        if (std::strcmp(argv[p], "--out") == 0) {
+            outPath = argv[++p];
+            continue;
+        }
+        qCritical().noquote() << "Unknown option:" << "'" + QString(argv[p]) + "'.";
+        return finish(-1);
+    }
+    if (encOption & decOption) {
+        qCritical() << "Cannot encrypt and decrypt at the same time.";
+        return finish(-1);
+    }
+    if (!(encOption | decOption)) {
+        qInfo() << "WARNING: Neither '--enc' nor '--dec' was specified.";
+    }
+    if (inPath.isEmpty()) {
+        qCritical().noquote() << "No input image.";
+        return finish(-1);
+    }
+//    if (outPath.isEmpty()) {
+//        qCritical().noquote() << "No output image.";
+//        return finish(-1);
 //    }
 
-    QString fileName = QString::fromLocal8Bit(argv[1]);
-    QImage original(fileName);
-    if (original.isNull()) {
-        qCritical() << "Failed to load image: " << fileName;
-        QThread::msleep(500);
-        return -1;
+    QImage image(inPath);
+    if (image.isNull()) {
+        qCritical().noquote() << "Failed to load image:" << "'" + inPath + "'.";
+        return finish(-1);
     }
+
+    CmtIeaCipher cipher(cyclesOption);
 
     QElapsedTimer timer;
     timer.start();
 
-    // encrypt image and save to file
-    CmtIeaCipher cipher;
-    QImage toEncrypt(original);
-    cipher.encrypt(toEncrypt);
-    toEncrypt.save("encrypted.png");
-
-    // load enctyped image from file
-    QImage toDecrypt("encrypted.png");
-    if (toDecrypt.isNull()) {
-        qCritical() << "Failed to load image: " << fileName;
-        QThread::msleep(500);
-        return -1;
+    if (encOption) {
+        cipher.encrypt(image);
+    } else if(decOption) {
+        cipher.decrypt(image);
     }
 
-    // check if image loaded from file is identical to enctryped one
-    qInfo() << "(encryptedCreated == encryptedLoaded) is:" << (toEncrypt == toDecrypt);
+    qreal sec = timer.elapsed();
+    int min = sec / 60000;
+    sec -= min * 60000;
+    sec /= 1000;
+    qInfo().noquote() << "cipher\t" + QString::number(min) + "m" + QString::number(sec) + "s";
 
-    // decrypt image
-    cipher.decrypt(toDecrypt);
-    toDecrypt.save("result.png");
+    if (!outPath.isEmpty() && !image.save(outPath)) {
+        qCritical().noquote() << "Failed to save image:" << "'" + outPath + "'.";
+    }
 
-    qInfo() << "(orginal == decrypted) is:" << (original == toDecrypt);
-    qInfo() << "time:" << timer.elapsed() << "ms";
-
-    // qInfo runs on defferent thread, let's wait to make sure that msg gets to cerr before ending
-    QThread::msleep(500);
-    return 0;
+    return finish(0);
 }

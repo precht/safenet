@@ -8,6 +8,11 @@
 #include <thread>
 #include <iostream>
 
+CmtIeaCipher::CmtIeaCipher(int cyclesNo)
+    : manyCycles(cyclesNo > 1)
+{
+}
+
 CmtIeaCipher::~CmtIeaCipher()
 {
     delete[] S1;
@@ -37,13 +42,16 @@ void CmtIeaCipher::slmm2d(const QSize &size)
     const int total = width * height;
 
     delete[] S1;
-    delete[] S2;
     delete[] T1;
-    delete[] T2;
     S1 = new double[total];
-    S2 = new double[total];
     T1 = new Pair[total];
-    T2 = new Pair[total];
+
+    if (manyCycles) {
+        delete[] S2;
+        delete[] T2;
+        T2 = new Pair[total];
+        S2 = new double[total];
+    }
 
     // generate chaotic sequences
     double xPrev = std::fmod(K.x + K.G1 * K.H, 1.0);
@@ -62,18 +70,20 @@ void CmtIeaCipher::slmm2d(const QSize &size)
         counter %= height;
     }
 
-    xPrev = std::fmod(K.x + K.G2 * K.H, 1.0);
-    yPrev = std::fmod(K.y + K.G2 * K.H, 1.0);
-    A = 0.9 + (std::fmod(K.a + K.G2 * K.H, 0.1));
-    counter = 0;
-    for (int i = 0; i < total; ++i) {
-        xNext = A * (std::sin(PI * yPrev) + B) * xPrev * (1 - xPrev);
-        yNext = A * (std::sin(PI * xNext) + B) * yPrev * (1 - yPrev);
-        S2[i] = xNext + yNext;
-        T2[i] = Pair(counter++, xNext + yNext);
-        xPrev = xNext;
-        yPrev = yNext;
-        counter %= height;
+    if (manyCycles) {
+        xPrev = std::fmod(K.x + K.G2 * K.H, 1.0);
+        yPrev = std::fmod(K.y + K.G2 * K.H, 1.0);
+        A = 0.9 + (std::fmod(K.a + K.G2 * K.H, 0.1));
+        counter = 0;
+        for (int i = 0; i < total; ++i) {
+            xNext = A * (std::sin(PI * yPrev) + B) * xPrev * (1 - xPrev);
+            yNext = A * (std::sin(PI * xNext) + B) * yPrev * (1 - yPrev);
+            S2[i] = xNext + yNext;
+            T2[i] = Pair(counter++, xNext + yNext);
+            xPrev = xNext;
+            yPrev = yNext;
+            counter %= height;
+        }
     }
 
     int threadsNumber = std::thread::hardware_concurrency();
@@ -81,10 +91,17 @@ void CmtIeaCipher::slmm2d(const QSize &size)
     std::vector<std::thread> threadsPool;
 
     // create many threads and sort columns on them
-    for (int i = 1; i < threadsNumber; ++i) {
-        threadsPool.push_back(std::move(std::thread(threadSlmm2dSort, i, threadsNumber, width, height, T1, T2)));
+    if (manyCycles) {
+        for (int i = 1; i < threadsNumber; ++i) {
+            threadsPool.push_back(std::move(std::thread(threadSlmm2dSort2, i, threadsNumber, width, height, T1, T2)));
+        }
+        threadSlmm2dSort2(0, threadsNumber, width, height, T1, T2);
+    } else {
+        for (int i = 1; i < threadsNumber; ++i) {
+            threadsPool.push_back(std::move(std::thread(threadSlmm2dSort1, i, threadsNumber, width, height, T1)));
+        }
+        threadSlmm2dSort1(0, threadsNumber, width, height, T1);
     }
-    threadSlmm2dSort(0, threadsNumber, width, height, T1, T2);
 
     // wait for all threads to end
     for (auto it = threadsPool.begin(); it != threadsPool.end(); ++it) {
@@ -92,8 +109,17 @@ void CmtIeaCipher::slmm2d(const QSize &size)
     }
 }
 
-void CmtIeaCipher::threadSlmm2dSort(const int threadIndex, const int threadsNumber, const int width, const int height,
-                                    Pair *T1, Pair *T2)
+void CmtIeaCipher::threadSlmm2dSort1(const int threadIndex, const int threadsNumber, const int width, const int height,
+                                     Pair *T)
+{
+    for (int i = threadIndex; i < width; i += threadsNumber) {
+        const int p = i * height;
+        std::sort(T + p, T + p + height, cmp);
+    }
+}
+
+void CmtIeaCipher::threadSlmm2dSort2(const int threadIndex, const int threadsNumber, const int width, const int height,
+                                     Pair *T1, Pair *T2)
 {
     for (int i = threadIndex; i < width; i += threadsNumber) {
         const int p = i * height;
@@ -124,21 +150,24 @@ void CmtIeaCipher::cmt(QImage &image)
     }
     threadsPool.clear();
 
-    //do the same for matrix T2
-    for (int i = 1; i < threadsNumber; ++i) {
-        threadsPool.push_back(std::move(std::thread(threadCmt, i, threadsNumber,
-                                                    width, height, (unsigned *)image.bits(), T2)));
-    }
-    threadCmt(0, threadsNumber, width, height, (unsigned *)image.bits(), T2);
+    if (manyCycles) {
+        //do the same for matrix T2
+        for (int i = 1; i < threadsNumber; ++i) {
+            threadsPool.push_back(std::move(std::thread(threadCmt, i, threadsNumber,
+                                                        width, height, (unsigned *)image.bits(), T2)));
+        }
+        threadCmt(0, threadsNumber, width, height, (unsigned *)image.bits(), T2);
 
-    // wait for all threads to end
-    for (auto it = threadsPool.begin(); it != threadsPool.end(); ++it) {
-        it->join();
+        // wait for all threads to end
+        for (auto it = threadsPool.begin(); it != threadsPool.end(); ++it) {
+            it->join();
+        }
     }
+
 }
 
 void CmtIeaCipher::threadCmt(const int threadIndex, const int threadsNumber, const int width, const int height,
-                               QRgb *image, Pair *T)
+                             QRgb *image, Pair *T)
 {
     std::vector<QRgb> cache;
     cache.resize(width);
@@ -171,18 +200,20 @@ void CmtIeaCipher::reverseCmt(QImage &image)
     if (threadsNumber <= 0 ) threadsNumber = 1;
     std::vector<std::thread> threadsPool;
 
-    // create many threads and reverse transform using matrix T2
-    for (int i = 1; i < threadsNumber; ++i) {
-        threadsPool.push_back(std::move(std::thread(threadRcmt, i, threadsNumber,
-                                                    width, height, (unsigned *)image.bits(), T2)));
-    }
-    threadRcmt(0, threadsNumber, width, height, (unsigned *)image.bits(), T2);
+    if (manyCycles) {
+        // create many threads and reverse transform using matrix T2
+        for (int i = 1; i < threadsNumber; ++i) {
+            threadsPool.push_back(std::move(std::thread(threadRcmt, i, threadsNumber,
+                                                        width, height, (unsigned *)image.bits(), T2)));
+        }
+        threadRcmt(0, threadsNumber, width, height, (unsigned *)image.bits(), T2);
 
-    // wait for all threads to end
-    for (auto it = threadsPool.begin(); it != threadsPool.end(); ++it) {
-        it->join();
+        // wait for all threads to end
+        for (auto it = threadsPool.begin(); it != threadsPool.end(); ++it) {
+            it->join();
+        }
+        threadsPool.clear();
     }
-    threadsPool.clear();
 
     //do the same for matrix T1
     for (int i = 1; i < threadsNumber; ++i) {
@@ -208,7 +239,7 @@ void CmtIeaCipher::threadRcmt(const int threadIndex, const int threadsNumber, co
         // cache values
         for (int x = 0; x < width; ++x) {
             const int y = T[height * x + i].position;
-                cache.push_back(image[y * width + x]);
+            cache.push_back(image[y * width + x]);
         }
         // put values in new positions
         {
@@ -256,26 +287,27 @@ void CmtIeaCipher::substitution(QImage &image)
     threadsPool.clear();
 
     // create many threads and substitute pixels using S2 matrix
+    if (manyCycles) {
+        // substitute rows
+        for (int i = 1; i < threadsNumber; ++i) {
+            threadsPool.push_back(std::move(std::thread(threadRowSubstitution, i, threadsNumber,
+                                                        width, height, C, (QRgb *)image.bits(), S2)));
+        }
+        threadRowSubstitution(0, threadsNumber, width, height, C, (QRgb *)image.bits(), S2);
+        for (auto it = threadsPool.begin(); it != threadsPool.end(); ++it) {
+            it->join();
+        }
+        threadsPool.clear();
 
-    // substitute rows
-    for (int i = 1; i < threadsNumber; ++i) {
-        threadsPool.push_back(std::move(std::thread(threadRowSubstitution, i, threadsNumber,
-                                                    width, height, C, (QRgb *)image.bits(), S2)));
-    }
-    threadRowSubstitution(0, threadsNumber, width, height, C, (QRgb *)image.bits(), S2);
-    for (auto it = threadsPool.begin(); it != threadsPool.end(); ++it) {
-        it->join();
-    }
-    threadsPool.clear();
-
-    //substitute columns
-    for (int i = 1; i < threadsNumber; ++i) {
-        threadsPool.push_back(std::move(std::thread(threadColumnSubstitution, i, threadsNumber,
-                                                    width, height, C, (QRgb *)image.bits(), S2)));
-    }
-    threadColumnSubstitution(0, threadsNumber, width, height, C, (QRgb *)image.bits(), S2);
-    for (auto it = threadsPool.begin(); it != threadsPool.end(); ++it) {
-        it->join();
+        //substitute columns
+        for (int i = 1; i < threadsNumber; ++i) {
+            threadsPool.push_back(std::move(std::thread(threadColumnSubstitution, i, threadsNumber,
+                                                        width, height, C, (QRgb *)image.bits(), S2)));
+        }
+        threadColumnSubstitution(0, threadsNumber, width, height, C, (QRgb *)image.bits(), S2);
+        for (auto it = threadsPool.begin(); it != threadsPool.end(); ++it) {
+            it->join();
+        }
     }
 }
 
@@ -317,28 +349,29 @@ void CmtIeaCipher::reverseSubstitution(QImage &image)
     std::vector<std::thread> threadsPool;
 
     // create many threads and reverse substitute pixels using S2 matrix
+    if (manyCycles) {
+        // substitute columns
+        for (int i = 1; i < threadsNumber; ++i) {
+            threadsPool.push_back(std::move(std::thread(threadReverseColumnSubstitution, i, threadsNumber,
+                                                        width, height, C, (QRgb *)image.bits(), S2)));
+        }
+        threadReverseColumnSubstitution(0, threadsNumber, width, height, C, (QRgb *)image.bits(), S2);
+        for (auto it = threadsPool.begin(); it != threadsPool.end(); ++it) {
+            it->join();
+        }
+        threadsPool.clear();
 
-    // substitute columns
-    for (int i = 1; i < threadsNumber; ++i) {
-        threadsPool.push_back(std::move(std::thread(threadReverseColumnSubstitution, i, threadsNumber,
-                                                    width, height, C, (QRgb *)image.bits(), S2)));
+        //substitute rows
+        for (int i = 1; i < threadsNumber; ++i) {
+            threadsPool.push_back(std::move(std::thread(threadReverseRowSubstitution, i, threadsNumber,
+                                                        width, height, C, (QRgb *)image.bits(), S2)));
+        }
+        threadReverseRowSubstitution(0, threadsNumber, width, height, C, (QRgb *)image.bits(), S2);
+        for (auto it = threadsPool.begin(); it != threadsPool.end(); ++it) {
+            it->join();
+        }
+        threadsPool.clear();
     }
-    threadReverseColumnSubstitution(0, threadsNumber, width, height, C, (QRgb *)image.bits(), S2);
-    for (auto it = threadsPool.begin(); it != threadsPool.end(); ++it) {
-        it->join();
-    }
-    threadsPool.clear();
-
-    //substitute rows
-    for (int i = 1; i < threadsNumber; ++i) {
-        threadsPool.push_back(std::move(std::thread(threadReverseRowSubstitution, i, threadsNumber,
-                                                    width, height, C, (QRgb *)image.bits(), S2)));
-    }
-    threadReverseRowSubstitution(0, threadsNumber, width, height, C, (QRgb *)image.bits(), S2);
-    for (auto it = threadsPool.begin(); it != threadsPool.end(); ++it) {
-        it->join();
-    }
-    threadsPool.clear();
 
     // create many threads and reverse substitute pixels using S1 matrix
 
