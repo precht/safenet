@@ -27,3 +27,19 @@
 *.exe
 *.out
 *.app
+
+# Custom
+**/build/
+**/build*
+**/bin/
+**/lib/
+**/CMakeLists.txt.user
+.gitattributes
+*.swp
+*.directory
+*.directory.*
+*.user
+*.user.*
+*.autosave
+**/target/
+

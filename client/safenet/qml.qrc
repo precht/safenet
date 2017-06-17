@@ -1,0 +1,16 @@
+<RCC>
+    <qresource prefix="/">
+        <file>main.qml</file>
+        <file>FileBrowser.qml</file>
+        <file>images/right.png</file>
+        <file>images/picture.png</file>
+        <file>images/left.png</file>
+        <file>images/folder.png</file>
+        <file>PictureViewer.qml</file>
+        <file>images/icon_ldpi.png</file>
+        <file>images/icon_hdpi.png</file>
+        <file>qtquickcontrols2.conf</file>
+        <file>Props.qml</file>
+        <file>qmldir</file>
+    </qresource>
+</RCC>
