@@ -3,15 +3,17 @@ TEMPLATE = app
 QT += qml quick
 CONFIG += c++11
 
-SOURCES += main.cpp \
-    cipher.cpp \
-    key.cpp
-
+SOURCES += src/main.cpp \
+    src/cipher.cpp \
+    src/key.cpp
+    
 HEADERS += \
-    cipher.h \
-    key.h
+    include/cipher.h \
+    include/key.h
 
-RESOURCES += qml.qrc
+RESOURCES += resource/qml.qrc
+
+INCLUDEPATH += include/
 
 QMAKE_CXXFLAGS += -std=c++11 -Wall -Wextra -pedantic -O3
 

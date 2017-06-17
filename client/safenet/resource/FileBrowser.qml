@@ -51,7 +51,7 @@ Item {
                 x: 4 * sizeCoef
                 width: 28 * sizeCoef
                 height: 28 * sizeCoef
-                source: currentFolder !== "" ? "images/left.png" : "images/right.png"
+                source: currentFolder !== "" ? "image/left.png" : "image/right.png"
             }
             Rectangle {
                 id: textRect
@@ -139,7 +139,7 @@ Item {
                             x: 15 * sizeCoef
                             width: 30 * sizeCoef
                             height: 30 * sizeCoef
-                            source: fileIsDir ? "images/folder.png" : "images/picture.png"
+                            source: fileIsDir ? "image/folder.png" : "image/picture.png"
                         }
                         Rectangle {
                             color: "transparent"

@@ -54,7 +54,7 @@ Item {
                 width: 30 * sizeCoef
                 height: 30 * sizeCoef
                 visible: currentFolder !== ""
-                source: "images/folder.png"
+                source: "image/folder.png"
             }
             Rectangle {
                 id: textArea
