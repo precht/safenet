@@ -12,7 +12,6 @@ ApplicationWindow {
 
     PageSwitcher {
         anchors.fill: parent
-        Component.onCompleted: setIndex(1)
     }
 
 }
