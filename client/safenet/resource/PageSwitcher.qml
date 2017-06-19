@@ -6,8 +6,8 @@ import "."
 Item {
     property double sizeCoef: width / (width < height ? Props.lowerSize : Props.higherSize)
     property double screenRatio: width / height
-    property int currentIndex: 0
-    property int iconSize: 28
+    property int currentIndex: -1
+    property int iconSize: 27
 
     function setIndex(index) {
         if (index !== currentIndex) {
@@ -33,7 +33,7 @@ Item {
         width: parent.width
         height: parent.height - footer.height
 
-        Component.onCompleted: source = "UploadPage.qml"
+        Component.onCompleted: setIndex(0)
     }
 
     Row {
@@ -44,13 +44,12 @@ Item {
 
         Rectangle {
             id: settingsPageButton
-            color: Props.firstBgColor
             height: parent.height
             width: parent.width / 3 - 1
             Image {
                 anchors.centerIn: parent
-                width: (iconSize - 2) * sizeCoef
-                height: (iconSize - 2) * sizeCoef
+                width: (iconSize - 3) * sizeCoef
+                height: (iconSize - 3) * sizeCoef
                 source: "image/settings.png"
             }
             MouseArea {
@@ -78,7 +77,6 @@ Item {
         }
         Rectangle {
             id: uploadPageButton
-            color: Props.secondBgColor
             height: parent.height
             width: parent.width / 3 - 2
 
@@ -113,7 +111,6 @@ Item {
         }
         Rectangle {
             id: downloadPageButton
-            color: Props.secondBgColor
             height: parent.height
             width: parent.width / 3 - 1
 
