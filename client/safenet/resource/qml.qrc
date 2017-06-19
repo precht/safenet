@@ -12,5 +12,12 @@
         <file>image/left.png</file>
         <file>image/picture.png</file>
         <file>image/right.png</file>
+        <file>UploadPage.qml</file>
+        <file>SettingsPage.qml</file>
+        <file>PageSwitcher.qml</file>
+        <file>image/upload.png</file>
+        <file>image/download.png</file>
+        <file>image/settings.png</file>
+        <file>DownloadPage.qml</file>
     </qresource>
 </RCC>

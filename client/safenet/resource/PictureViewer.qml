@@ -1,10 +1,11 @@
 import QtQuick 2.5
+import CryptoImage 1.0
 import "."
 
 Item {
     id: pictureViewer
 
-    property double sizeCoef: width / (width + 160 < height ? Props.lowerSize : Props.higherSize)
+    property double sizeCoef: width / (width < height ? Props.lowerSize : Props.higherSize)
     property string path
     property string folderPath
     signal loaderCall(string name, string path)
@@ -23,20 +24,11 @@ Item {
         width: parent.width
     }
 
-    Rectangle {
-        property alias viewerLoader: viewerLoader
-        y: headerLoader.height
-        height: parent.height - headerLoader.height
+    Loader {
+        id: viewerLoader
+        anchors.fill: parent
+        anchors.topMargin: headerLoader.height + 15
         width: parent.width
-        color: "transparent"
-        clip: true
-
-        Loader {
-            id: viewerLoader
-            height: 420 * sizeCoef
-            anchors.verticalCenter: parent.verticalCenter
-            width: parent.width
-        }
     }
 
     Component {
@@ -104,67 +96,97 @@ Item {
         id: viewerComponent
 
         Item {
-            Rectangle {
-                anchors.horizontalCenter: parent.horizontalCenter
-                height: 300 * sizeCoef
-                width: 300 * sizeCoef
-                color: "transparent"
+            Item {
+                id: cimageWrapper
+                x: 20 * sizeCoef
+                y: 0
+                width: parent.width - 40 * sizeCoef
+                height: parent.height - 100 * sizeCoef
 
-                Image {
-                    id: image
+                CryptoImage {
+                    id: cimage
                     anchors.fill: parent
-                    fillMode: Image.PreserveAspectFit
                     source: path
                 }
             }
-            Rectangle {
-                y: 320 * sizeCoef
-                height: 54 * sizeCoef
-                width: 100 * sizeCoef
+            Row {
                 anchors.horizontalCenter: parent.horizontalCenter
-                color: Props.secondBgColor
-                Text {
-                    text: "Upload"
-                    font.family: Props.fontName
-                    font.pixelSize: Props.fontSize * sizeCoef
-                    x: 22 * sizeCoef
-                    y: 16 * sizeCoef
+                y: cimageWrapper.height + 20 * sizeCoef
 
-                }
                 Rectangle {
-                    x: 0; y: 0
-                    height: 1; width: parent.width
+                    id: cbutton
+                    property bool crytoMode: true
+//                    y: cimageWrapper.height + 20 * sizeCoef
+                    height: 54 * sizeCoef
+                    width: 100 * sizeCoef
                     color: Props.secondBgColor
-                }
-                Rectangle {
-                    x: 0; y: parent.height - 1
-                    height: 1; width: parent.width
-                    color: Props.secondBgColor
-                }
-                Rectangle {
-                    x: 0;  y: 0
-                    height: parent.height;  width: 1
-                    color: Props.secondBgColor
-                }
-                Rectangle {
-                    x: parent.width;  y: 0
-                    height: parent.height;  width: 1
-                    color: Props.secondBgColor
-                }
-                MouseArea {
-                    anchors.fill: parent
-                    onPressed: {
-                        parent.color = Props.pressedBgColor
+                    Text {
+                        text: cbutton.crytoMode ? "Encrypt" : "Decrypt"
+                        font.family: Props.fontName
+                        font.pixelSize: Props.fontSize * sizeCoef
+                        y: 16 * sizeCoef
+                        anchors.horizontalCenter: parent.horizontalCenter
                     }
-                    onReleased:  {
-                        restoreOriginal()
-                        // TODO: pressed action
+                    MouseArea {
+                        anchors.fill: parent
+                        property bool isEncrypt: true
+                        onPressed: {
+                            parent.color = Props.pressedBgColor
+                        }
+                        onReleased:  {
+                            if (cbutton.crytoMode) {
+                                cimage.encrypt()
+                                cbutton.crytoMode = false
+                            } else {
+                                cimage.decrypt()
+                                cbutton.crytoMode = true
+                            }
+                            restoreOriginal()
+                        }
+                        onCanceled: {
+                            restoreOriginal()
+                        }
+                        function restoreOriginal() {
+                            parent.color = Props.secondBgColor
+                        }
                     }
-                    onCanceled: {
-                        restoreOriginal()
+                }
+                Rectangle {
+                    x: 100 * sizeCoef
+                    width: 50 * sizeCoef
+                    height: 54 * sizeCoef
+                }
+
+                Rectangle {
+                    id: ubutton
+                    x: 250 * sizeCoef
+//                    y: cimageWrapper.height + 20 * sizeCoef
+                    height: 54 * sizeCoef
+                    width: 100 * sizeCoef
+                    color: Props.secondBgColor
+                    Text {
+                        text: "Upload"
+                        font.family: Props.fontName
+                        font.pixelSize: Props.fontSize * sizeCoef
+                        y: 16 * sizeCoef
+                        anchors.horizontalCenter: parent.horizontalCenter
                     }
-                    function restoreOriginal() {
-                        parent.color = Props.secondBgColor
+                    MouseArea {
+                        anchors.fill: parent
+                        property bool isEncrypt: true
+                        onPressed: {
+                            parent.color = Props.pressedBgColor
+                        }
+                        onReleased:  {
+                            // TODO: upload action
+                            restoreOriginal()
+                        }
+                        onCanceled: {
+                            restoreOriginal()
+                        }
+                        function restoreOriginal() {
+                            parent.color = Props.secondBgColor
+                        }
                     }
                 }
             }

@@ -5,11 +5,13 @@ CONFIG += c++11
 
 SOURCES += src/main.cpp \
     src/cipher.cpp \
-    src/key.cpp
+    src/key.cpp \
+    src/cryptoimage.cpp
     
 HEADERS += \
     include/cipher.h \
-    include/key.h
+    include/key.h \
+    include/cryptoimage.h
 
 RESOURCES += resource/qml.qrc
 
@@ -46,6 +48,6 @@ DISTFILES += \
     android/res/values/libs.xml \
     android/build.gradle \
     android/gradle/wrapper/gradle-wrapper.properties \
-    android/gradlew.bat \
+    android/gradlew.bat
 
 ANDROID_PACKAGE_SOURCE_DIR = $$PWD/android
