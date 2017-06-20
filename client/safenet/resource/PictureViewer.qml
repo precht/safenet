@@ -178,7 +178,7 @@ Item {
                             parent.color = Props.pressedBgColor
                         }
                         onReleased:  {
-                            // TODO: upload action
+                            manager.uploadImage(path)
                             restoreOriginal()
                         }
                         onCanceled: {

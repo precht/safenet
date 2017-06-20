@@ -14,6 +14,8 @@ Item {
         var result = path.match(/(^file:\/\/\/|)(.*)\/[^\/]*$/)
         fileBrowser.path = path
         fileBrowser.parentPath = result[1] !== "" ? result[1] + result[2] : ""
+        console.log(path)
+        console.log(parentPath)
         headerLoader.sourceComponent = headerComponent
         browserLoader.sourceComponent = loadableComponent
     }

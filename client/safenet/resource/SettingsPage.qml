@@ -50,7 +50,8 @@ Item {
             border.width: 1
             border.color: Props.secondBgColor
             TextInput {
-                text: "8580"
+                text: "8085"
+                validator: IntValidator { bottom: 0; top: 65535 }
                 anchors.verticalCenter: parent.verticalCenter
                 x: 3 * sizeCoef
                 width: parent.width - this.x

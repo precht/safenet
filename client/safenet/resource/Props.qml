@@ -15,7 +15,8 @@ QtObject {
     property int higherSize: 800
 
     property bool showFiles: true
-    property string startPath: "file:///"
-//    property string startPath: "file:///home/jakub/Pictures"
-    property var formats: ["*.bmp", "*.png", "*.jpg", "*.jpeg"]
+//    property string startPath: "file:///"
+    property string startPath: "file:///home/jakub/Pictures"
+    property var formats: ["*.bmp", "*.png", "*.jpg", "*.jpeg",
+                           "*.BMP", "*.PNG", "*.JPG", "*.JPEG"]
 }

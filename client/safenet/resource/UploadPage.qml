@@ -12,8 +12,9 @@ Item {
 
     Component.onCompleted: {
         loader.source = "FileBrowser.qml"
-        loader.item.show(Props.startPath)
+        loader.item.show(manager.picturesFolder)
         loader.item.focus = true
+        console.log("starting file browser in: " + manager.picturesFolder)
     }
 
     Connections {

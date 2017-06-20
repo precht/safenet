@@ -6,14 +6,29 @@ CONFIG += c++11
 SOURCES += src/main.cpp \
     src/cipher.cpp \
     src/key.cpp \
-    src/cryptoimage.cpp
+    src/cryptoimage.cpp \
+    src/manager.cpp \
+    src/imagedownloader.cpp \
+    src/imageuploader.cpp \
+    src/keydownloader.cpp \
+    src/keyuploader.cpp \
+    src/sslconfig.cpp \
     
 HEADERS += \
     include/cipher.h \
     include/key.h \
-    include/cryptoimage.h
+    include/cryptoimage.h \
+    include/imagedownloader.h \
+    include/imageuploader.h \
+    include/keydownloader.h \
+    include/keyuploader.h \
+    include/manager.h \
+    include/sslconfig.h \
 
-RESOURCES += resource/qml.qrc
+RESOURCES += \
+    resource/qml.qrc \
+    resource/certificates.qrc
+
 
 INCLUDEPATH += include/
 

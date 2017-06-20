@@ -23,7 +23,7 @@ struct Pair {
 class CmtIeaCipher
 {
 public:
-    CmtIeaCipher(int cyclesNo = 2);
+    CmtIeaCipher(int cyclesNo = 1);
     ~CmtIeaCipher();
     void encrypt(QImage &image);
     void decrypt(QImage &image);
