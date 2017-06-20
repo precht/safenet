@@ -13,7 +13,9 @@ SOURCES += src/main.cpp \
     src/keydownloader.cpp \
     src/keyuploader.cpp \
     src/sslconfig.cpp \
-    
+    src/servermodel.cpp \
+    src/filelister.cpp
+
 HEADERS += \
     include/cipher.h \
     include/key.h \
@@ -24,6 +26,8 @@ HEADERS += \
     include/keyuploader.h \
     include/manager.h \
     include/sslconfig.h \
+    include/servermodel.h \
+    include/filelister.h
 
 RESOURCES += \
     resource/qml.qrc \

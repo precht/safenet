@@ -73,17 +73,20 @@ void ImageUploader::doUpload(QString address, QString fileName) {
     QEventLoop loop;
     connect(reply, SIGNAL(finished()), &loop, SLOT(quit()));
     loop.exec();
+
+    delete multiPart;
+    delete file;
 }
 
 
 
 void ImageUploader::replyFinished (QNetworkReply *reply)
 {
-    qDebug() << "Image upload";
+    qDebug() << "-->>" << "Image upload";
     if(reply->error())
     {
-        qDebug() << "ERROR!";
-        qDebug() << reply->errorString();
+        qDebug() << "-->>" << "ERROR!";
+        qDebug() << "-->>" << reply->errorString();
     }
 
     else {

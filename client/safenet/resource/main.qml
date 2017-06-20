@@ -15,6 +15,7 @@ ApplicationWindow {
     }
 
     Component.onCompleted: {
+        console.log(manager.address)
     }
 
 }

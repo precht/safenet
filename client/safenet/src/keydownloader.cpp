@@ -54,21 +54,21 @@ void KeyDownloader::doDownload(QString address){
 
 void KeyDownloader::replyFinished (QNetworkReply *reply)
 {
-    qDebug() << "Key download";
+    qDebug() << "-->>" << "Key download";
 
     if(reply->error())
     {
-        qDebug() << "ERROR!";
-        qDebug() << reply->errorString();
+        qDebug() << "-->>" << "ERROR!";
+        qDebug() << "-->>" << reply->errorString();
     }
     else
     {
-        qDebug() << reply->header(QNetworkRequest::ContentTypeHeader).toString();
-        qDebug() << reply->header(QNetworkRequest::LastModifiedHeader).toDateTime().toString();
-        qDebug() << reply->header(QNetworkRequest::ContentLengthHeader).toULongLong();
-        qDebug() << reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt();
-        qDebug() << reply->attribute(QNetworkRequest::HttpReasonPhraseAttribute).toString();
-        qDebug() << "Connection encrypted: " << reply->attribute(QNetworkRequest::ConnectionEncryptedAttribute).toString();
+        qDebug() << "-->>" << reply->header(QNetworkRequest::ContentTypeHeader).toString();
+        qDebug() << "-->>" << reply->header(QNetworkRequest::LastModifiedHeader).toDateTime().toString();
+        qDebug() << "-->>" << reply->header(QNetworkRequest::ContentLengthHeader).toULongLong();
+        qDebug() << "-->>" << reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt();
+        qDebug() << "-->>" << reply->attribute(QNetworkRequest::HttpReasonPhraseAttribute).toString();
+        qDebug() << "-->>" << "Connection encrypted: " << reply->attribute(QNetworkRequest::ConnectionEncryptedAttribute).toString();
 
         QString fileToWrite = desktopPath + "/downloadedkey.txt";
         QFile *file = new QFile(fileToWrite);

@@ -7,26 +7,24 @@
 
 #include "cryptoimage.h"
 #include "manager.h"
+#include "servermodel.h"
 
 int main(int argc, char *argv[])
 {
     QGuiApplication app(argc, argv);
 
-    qInfo() << "\n\n\n";
-    qInfo() << "App path:" << QCoreApplication::applicationDirPath();
-    qInfo() << "Pictures path:" << QStandardPaths::locate(QStandardPaths::PicturesLocation, "", QStandardPaths::LocateDirectory);
-    qInfo() << "Download path:" << QStandardPaths::locate(QStandardPaths::DownloadLocation, "", QStandardPaths::LocateDirectory);
-    qInfo() << "\n\n\n";
-
     // register CrytpoIamge as QML component
     qmlRegisterType<CryptoImage>("CryptoImage", 1, 0, "CryptoImage");
 
-    QScopedPointer<Manager> manager(new Manager());
-
+    ServerModel serverModel;
+    Manager manager(&serverModel);
+    manager.updateServerModel();
+    manager.updateServerModel();
     QQmlApplicationEngine engine;
 
-    // add Manager as global property
-    engine.rootContext()->setContextProperty("manager", manager.data());
+    // add Manager and ServerModel as global properties
+    engine.rootContext()->setContextProperty("manager", &manager);
+    engine.rootContext()->setContextProperty("serverModel", &serverModel);
 
     engine.load(QUrl(QStringLiteral("qrc:/main.qml")));
     if (engine.rootObjects().isEmpty())
