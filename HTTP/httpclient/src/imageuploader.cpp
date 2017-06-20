@@ -11,6 +11,7 @@ ImageUploader::ImageUploader(QNetworkAccessManager *aManager, QObject *parent) :
 
 void ImageUploader::doUpload(QString address, QString fileName) {
 
+    qDebug() << address;
     /*connect(manager, SIGNAL(finished(QNetworkReply*)),
             this, SLOT(replyFinished(QNetworkReply*)));*/
 
@@ -41,7 +42,7 @@ void ImageUploader::doUpload(QString address, QString fileName) {
 
 
     //name of file seen by server
-    QString destinationFileName("senttoserver.png");
+    QString destinationFileName(fileName);
     QHttpPart imagePart;
     imagePart.setHeader(QNetworkRequest::ContentDispositionHeader, QVariant("form-data; name=\"file\"; filename=\"" + destinationFileName + "\""));
     QFile *file = new QFile(fileToSend);

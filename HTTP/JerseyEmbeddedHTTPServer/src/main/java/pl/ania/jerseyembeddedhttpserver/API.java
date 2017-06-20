@@ -8,15 +8,21 @@ package pl.ania.jerseyembeddedhttpserver;
 import com.sun.jersey.core.header.FormDataContentDisposition;
 import com.sun.jersey.multipart.FormDataParam;
 import java.io.File;
+import java.io.FileFilter;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Consumes;
+import javax.ws.rs.DELETE;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
+import javax.ws.rs.core.GenericEntity;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.ResponseBuilder;
@@ -47,13 +53,63 @@ public class API {
         return aKey;
     }
 
+    // DOWNLOADING KEY FROM SERVER
+    @GET
+    @Path("/listfiles")
+    @Produces(MediaType.APPLICATION_JSON)
+    public FileList listFiles() {
+        
+        System.out.println("Listing files in server directory...");
+        FileList listToSend = new FileList();
+
+        File folder = new File(".");
+        File[] listOfFiles = folder.listFiles(new ImageFileFilter());
+        List<String> fileList = new ArrayList<>();
+
+        for (File aFile : listOfFiles) {
+            if (aFile.isFile()) {
+                System.out.println("File " + aFile.getName());
+                fileList.add(aFile.getName());
+            }
+        }
+
+        listToSend.setFileList(fileList);
+        return listToSend;
+    }
+
+    @DELETE
+    @Path("/delete")
+    public Response deleteFiles() {
+        System.out.println("Request for file deletion...");
+        File folder = new File(".");
+        File[] listOfFiles = folder.listFiles(new ImageFileFilter());
+
+        boolean result = false;
+
+        for (File aFile : listOfFiles) {
+            if (aFile.isFile()) {
+                System.out.println("File " + aFile.getName() + " was deleted");
+                result = aFile.delete();
+            }
+        }
+        
+        if (result) {
+            System.out.println("Files have been deleted");
+            return Response.ok("File deleted successfully").build();
+        } else {
+            System.out.println("File was not deleted, unknown reason");
+        }
+            return Response.status (Response.Status.NOT_FOUND).build();
+    }
+
+
     // UPLOADING KEY TO SERVER
     @POST
-    @Consumes({MediaType.APPLICATION_JSON})
-    @Produces({MediaType.TEXT_PLAIN})
-    @Path("/upload/key")
-    public String uploadKey(Key key) throws Exception {
-        
+        @Consumes({MediaType.APPLICATION_JSON})
+        @Produces({MediaType.TEXT_PLAIN})
+        @Path("/upload/key")
+        public String uploadKey(Key key) throws Exception {
+
         System.out.println(key.getX());
         System.out.println(key.getY());
         System.out.println(key.getA());
@@ -67,9 +123,9 @@ public class API {
     //DOWNLOADING IMAGE FROM SERVER
     //File - lena.png in user's home directory
     @GET
-    @Path("/download/image")
-    @Produces({"image/png", "image/jpg", "image/gif", "image/bmp"})
-    public Response downloadImageFile() {
+        @Path("/download/image")
+        @Produces({"image/png", "image/jpg", "image/gif", "image/bmp"})
+        public Response downloadImageFile() {
 
         // set file (and path) to be downloaded
         String path = System.getProperty("user.dir") + "/senttoserver.png";
@@ -88,9 +144,9 @@ public class API {
     //UPLOADING IMAGE TO SERVER
     //uploading to user's working directory
     @POST
-    @Path("/upload/image")
-    @Consumes(MediaType.MULTIPART_FORM_DATA)
-    public Response uploadTextFile(
+        @Path("/upload/image")
+        @Consumes(MediaType.MULTIPART_FORM_DATA)
+        public Response uploadImageFile(
             @FormDataParam("file") InputStream fileInputStream,
             @FormDataParam("file") FormDataContentDisposition fileFormDataContentDisposition
     ) {

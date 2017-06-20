@@ -10,6 +10,8 @@
 #include "keyuploader.h"
 #include "imageuploader.h"
 #include "imagedownloader.h"
+#include "filedeleter.h"
+#include "filelister.h"
 
 
 class Manager : public QObject
@@ -21,6 +23,8 @@ public:
     void uploadImage(QString fileName);
     void downloadKey();
     void downloadImage();
+    void deleteFilesFromServer();
+    void listFiles();
     void setAddress(QString IPaddress);
 
 signals:
@@ -34,6 +38,8 @@ private:
     KeyUploader *ku;
     ImageDownloader *id;
     ImageUploader *iu;
+    FileDeleter *fd;
+    FileLister *fl;
     QString address;
 };
 
