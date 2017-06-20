@@ -11,8 +11,9 @@ Manager::Manager(QObject *parent) : QObject(parent)
     kd = new KeyDownloader(manager);
     ku = new KeyUploader(manager);
     id = new ImageDownloader(manager);
-    iu = new ImageUploader(manager);\
-
+    iu = new ImageUploader(manager);
+    fd = new FileDeleter(manager);
+    fl = new FileLister(manager);
 
     address = QString("https://localhost:8085/api/");
 
@@ -32,6 +33,13 @@ void Manager::handle(QNetworkReply *reply) {
     }
     else if (object == iu ) {
         iu->replyFinished(reply);
+    }
+    else if (object == fd ) {
+        fd->replyFinished(reply);
+    }
+
+    else if (object == fl ) {
+    fl->replyFinished(reply);
     }
 }
 
@@ -55,4 +63,12 @@ void Manager::downloadImage() {
 
 void Manager::setAddress(QString IPaddress) {
     this-> address = "https://" + IPaddress + ":8085/api/";
+}
+
+void Manager::deleteFilesFromServer(){
+    fd->deleteFiles(address);
+}
+
+void Manager::listFiles(){
+    fl->listFiles(address);
 }

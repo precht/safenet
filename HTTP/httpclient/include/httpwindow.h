@@ -20,12 +20,16 @@ public slots:
 private slots:
     void doDownload();
     void doUpload();
+    void doDelete();
+    void doList();
     void setAddress();
 
 private:
     QLineEdit *IPLineEdit;
     QPushButton *downloadButton;
     QPushButton *uploadButton;
+    QPushButton *deleteButton;
+    QPushButton *listButton;
     Manager *manager;
 };
 
