@@ -1,13 +1,23 @@
 QT += core
+ 
 QT += network
+ 
 QT += gui
+ 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
+ 
 
+ 
 CONFIG += c++11
+ 
 CONFIG += console
+ 
 
+ 
 INCLUDEPATH += ./include
+ 
 
+ 
 HEADERS += \
     include/imagedownloader.h \
     include/imageuploader.h \
@@ -17,8 +27,12 @@ HEADERS += \
     include/sslconfig.h \
     include/httpwindow.h \
     include/cipher.h \
-    include/key.h
+    include/key.h \
+    include/filedeleter.h \
+    include/filelister.h
+ 
 
+ 
 SOURCES += \
     src/imagedownloader.cpp \
     src/imageuploader.cpp \
@@ -29,7 +43,14 @@ SOURCES += \
     src/sslconfig.cpp \
     src/httpwindow.cpp \
     src/cipher.cpp \
-    src/key.cpp
+    src/key.cpp \
+    src/filedeleter.cpp \
+    src/filelister.cpp
 
+
+
+ 
 RESOURCES += \
+ 
     certificates.qrc
+ 
