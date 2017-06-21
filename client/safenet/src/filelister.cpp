@@ -1,8 +1,10 @@
 #include "filelister.h"
+#include "sslconfig.h"
 
-FileLister::FileLister(QNetworkAccessManager *aManager, QObject *parent) : manager(aManager), QObject(parent)
+FileLister::FileLister(QNetworkAccessManager *aManager, QObject *parent)
+    : QObject(parent)
+    , manager(aManager)
 {
-
 }
 
 
@@ -11,6 +13,9 @@ void FileLister::listFiles(QString address){
     QUrl url(completeAddress);
     request.setUrl(url);
 
+    SslConfig aConfig(true);
+    QSslConfiguration config = aConfig.getConfig();
+    request.setSslConfiguration(config);
     request.setOriginatingObject(this);
 
     //login data for authorization

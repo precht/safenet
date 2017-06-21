@@ -82,27 +82,26 @@ void Manager::uploadKey() {
 }
 
 
-void Manager::uploadImage(QString fileURL) {
+void Manager::uploadImage(QString fileURL)
+{
     QString name = QUrl(fileURL).toLocalFile();
-    qInfo() << "Uploading image" << name << "...";
     iu->doUpload(m_address, name);
+    qInfo() << "Uploaded image" << name << "...";
 }
 
 void Manager::downloadKey() {
-    qInfo() << "Downloading key...";
     kd->doDownload(m_address);
+    qInfo() << "Downloaded key...";
 }
 
 void Manager::downloadImage(QString fileName) {
     id->doDownload(m_address);
     id->decrypt();
-    qInfo() << "Downloading image" << fileName << "...";
-
+    qInfo() << "Downloaded image" << fileName << "...";
 }
 
 void Manager::updateServerModel()
 {
-    qInfo() << "Updating server model...";
     fl->listFiles(m_address);
 
     sm->clear();
@@ -119,19 +118,20 @@ void Manager::updateServerModel()
         }
         file.close();
     }
+    qInfo() << "Updated server model...";
 }
 
 void Manager::setIP(QString ip) {
-    qInfo() << "Setting ip to:" << ip + "...";
     this-> m_ip = ip;
     setAddress();
+    qInfo() << "Set ip to:" << ip + "...";
 }
 
 void Manager::setPort(QString port)
 {
-    qInfo() << "Setting port to:" << port + "...";
     this->m_port = port;
     setAddress();
+    qInfo() << "Set port to:" << port + "...";
 }
 
 QString Manager::downloadFolder() const

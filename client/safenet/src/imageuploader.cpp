@@ -1,7 +1,11 @@
 #include "imageuploader.h"
 #include "sslconfig.h"
 #include "cipher.h"
+
 #include <QDir>
+#include <QRegularExpression>
+#include <QRegularExpressionMatch>
+#include <QDebug>
 
 ImageUploader::ImageUploader(QNetworkAccessManager *aManager, QObject *parent)
     : QObject(parent)
@@ -10,16 +14,16 @@ ImageUploader::ImageUploader(QNetworkAccessManager *aManager, QObject *parent)
 }
 
 
-void ImageUploader::doUpload(QString address, QString fileName) {
+void ImageUploader::doUpload(QString address, QString filePath) {
 
     /*connect(manager, SIGNAL(finished(QNetworkReply*)),
             this, SLOT(replyFinished(QNetworkReply*)));*/
 
     //encryption
-    QImage original(fileName);
+    QImage original(filePath);
 
     if (original.isNull()) {
-        qDebug() << "Failed to load the image:" << fileName;
+        qDebug() << "Failed to load the image:" << filePath;
         return;
     }
     encrypt(original);
@@ -41,7 +45,12 @@ void ImageUploader::doUpload(QString address, QString fileName) {
 
 
     //name of file seen by server
-    QString destinationFileName("senttoserver.png");
+    qInfo() << "this is what i have: " << filePath;
+    QRegularExpression re("\/([^\/]+)\\.\\w+$");
+    QRegularExpressionMatch m = re.match(filePath);
+    QString fileName = m.hasMatch() ? m.captured(1) + ".png" : "unknown_file_name.png";
+
+    QString destinationFileName(fileName);
     QHttpPart imagePart;
     imagePart.setHeader(QNetworkRequest::ContentDispositionHeader, QVariant("form-data; name=\"file\"; filename=\"" + destinationFileName + "\""));
     QFile *file = new QFile(fileToSend);
