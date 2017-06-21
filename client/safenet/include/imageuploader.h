@@ -21,7 +21,7 @@ class ImageUploader : public QObject
     Q_OBJECT
 public:
     explicit ImageUploader(QNetworkAccessManager *aManager = 0, QObject *parent = 0);
-    void doUpload(QString address, QString fileName);
+    void doUpload(QString address, QString fileName, QString destPath);
     void encrypt(QImage original);
 signals:
 
@@ -31,6 +31,7 @@ public slots:
 private:
     QNetworkAccessManager *manager;
     QNetworkRequest request;
+    QString destPath;
 };
 
 #endif // UPLOADER_H

@@ -100,7 +100,7 @@ Item {
                 CryptoImage {
                     id: cimage
                     anchors.fill: parent
-                    source: "file://" + manager.appFolder + "/decrypted.png"
+                    source: "file://" + manager.downloadFolder + "decrypted.png"
                 }
             }
             Row {

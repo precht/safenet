@@ -83,7 +83,7 @@ void Manager::uploadKey() {
 void Manager::uploadImage(QString fileURL)
 {
     QString name = QUrl(fileURL).toLocalFile();
-    iu->doUpload(m_address, name);
+    iu->doUpload(m_address, name, m_downloadFolder);
     qInfo() << "Uploaded image" << name << "...";
 }
 
@@ -93,7 +93,7 @@ void Manager::downloadKey() {
 }
 
 void Manager::downloadImage(QString fileName) {
-    id->doDownload(m_address, fileName);
+    id->doDownload(m_address, fileName, m_downloadFolder);
     id->decrypt();
     qInfo() << "Downloaded image" << fileName << "...";
 }

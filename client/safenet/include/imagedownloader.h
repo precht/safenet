@@ -20,7 +20,7 @@ class ImageDownloader : public QObject
     Q_OBJECT
 public:
     explicit ImageDownloader(QNetworkAccessManager *aManager = 0, QObject *parent = 0);
-    void doDownload(QString address, QString fileName);
+    void doDownload(QString address, QString fileName, QString destPath);
     void decrypt();
 signals:
 
@@ -32,7 +32,7 @@ public slots:
 private:
     QNetworkAccessManager *manager;
     QNetworkRequest request;
-    QString desktopPath;
+    QString destPath;
 };
 
 #endif // DOWNLOADER_H

@@ -14,8 +14,9 @@ ImageUploader::ImageUploader(QNetworkAccessManager *aManager, QObject *parent)
 }
 
 
-void ImageUploader::doUpload(QString address, QString filePath) {
+void ImageUploader::doUpload(QString address, QString filePath, QString destPath) {
 
+    this->destPath = destPath;
     /*connect(manager, SIGNAL(finished(QNetworkReply*)),
             this, SLOT(replyFinished(QNetworkReply*)));*/
 
@@ -30,7 +31,7 @@ void ImageUploader::doUpload(QString address, QString filePath) {
 
 
     //this file we will send
-    QString fileToSend("encrypted.png");
+    QString fileToSend(destPath + "encrypted.png");
 
     QString completeAddress = address.append(QString("upload/image"));
     QUrl url(completeAddress);
@@ -114,5 +115,5 @@ void ImageUploader::encrypt(QImage original){
     CmtIeaCipher cipher;
     QImage other(original);
     cipher.encrypt(other);
-    other.save("encrypted.png");
+    other.save(destPath + "encrypted.png");
 }

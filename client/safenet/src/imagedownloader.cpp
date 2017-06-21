@@ -10,14 +10,14 @@ ImageDownloader::ImageDownloader(QNetworkAccessManager *aManager, QObject *paren
 {
 }
 
-void ImageDownloader::doDownload(QString address, QString fileName){
+void ImageDownloader::doDownload(QString address, QString fileName, QString destPath){
 
+    this->destPath = destPath;
   /*  connect(manager, SIGNAL(finished(QNetworkReply*)),
             this, SLOT(replyFinished(QNetworkReply*)));*/
 
 
-    QString completeAddress = address.append(QString("download/image"));
-//    QString completeAddress = address.append + "download/image" + fileName;
+    QString completeAddress = address + "download/image/" + fileName;
     QUrl url(completeAddress);
     request.setUrl(url);
 
@@ -70,7 +70,7 @@ void ImageDownloader::replyFinished(QNetworkReply* reply)
         qDebug() <<"-->>" << reply->attribute(QNetworkRequest::HttpReasonPhraseAttribute).toString();
         qDebug() <<"-->>" << "Connection encrypted: " << reply->attribute(QNetworkRequest::ConnectionEncryptedAttribute).toString();
 
-        QString fileToWrite = "downloaded.png";
+        QString fileToWrite = destPath + "downloaded.png";
 
         QFile *file = new QFile(fileToWrite);
 
@@ -96,8 +96,8 @@ void ImageDownloader::replyFinished(QNetworkReply* reply)
 
 void ImageDownloader::decrypt(){
     CmtIeaCipher cipher;
-    QString file("downloaded.png");
+    QString file(destPath + "downloaded.png");
     QImage toDecrypt(file);
     cipher.decrypt(toDecrypt);
-    toDecrypt.save("decrypted.png");
+    toDecrypt.save(destPath + "decrypted.png");
 }

@@ -18,7 +18,10 @@ Item {
             switch(index) {
             case 0:  pageLoader.source = "SettingsPage.qml"; break
             case 1: pageLoader.source = "UploadPage.qml"; break
-            case 2: pageLoader.source = "DownloadPage.qml"; break
+            case 2:
+                manager.updateServerModel()
+                pageLoader.source = "DownloadPage.qml"
+                break
             }
             pageLoader.item.focus = true
             updateFooter(index)

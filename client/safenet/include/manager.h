@@ -18,7 +18,7 @@ class Manager : public QObject
 {
     Q_OBJECT
     Q_PROPERTY(QString picturesFolder READ picturesFolder NOTIFY picturesFolderChanged)
-//    Q_PROPERTY(QString downloadFolder READ downloadFolder NOTIFY downloadFolderChanged)
+    Q_PROPERTY(QString downloadFolder READ downloadFolder NOTIFY downloadFolderChanged)
     Q_PROPERTY(QString appFolder READ appFolder NOTIFY appFolderChanged)
     Q_PROPERTY(QString address READ address NOTIFY addressChanged)
     Q_PROPERTY(QString ip READ ip NOTIFY ipChanged)

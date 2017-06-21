@@ -53,12 +53,13 @@ public class JerseyEmbeddedHTTPServer {
     }
 
     private static String getHostName() {
-        String hostName = "localhost";
-        try {
-            hostName = InetAddress.getLocalHost().getCanonicalHostName();
-        } catch (UnknownHostException e) {
-            System.out.println(e);
-        }
+        String hostName = "10.3.144.127";
+//        String hostName = "localhost";
+//        try {
+//            hostName = InetAddress.getLocalHost().getCanonicalHostName();
+//        } catch (UnknownHostException e) {
+//            System.out.println(e);
+//        }
         return hostName;
     }
 }
