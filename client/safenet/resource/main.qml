@@ -14,5 +14,9 @@ ApplicationWindow {
         anchors.fill: parent
     }
 
+//    Authors {
+//        anchors.fill: parent
+//    }
+
 }
 

@@ -42,7 +42,7 @@ Item {
                 x: 13 * sizeCoef
                 width: 30 * sizeCoef
                 height: 30 * sizeCoef
-                source: "image/disconnected.png"
+                source: "image/folder.png"
             }
             Rectangle {
                 id: textArea

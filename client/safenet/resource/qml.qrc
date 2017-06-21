@@ -13,7 +13,7 @@
         <file>image/picture.png</file>
         <file>image/right.png</file>
         <file>UploadPage.qml</file>
-        <file>SettingsPage.qml</file>
+        <file>SettingsInput.qml</file>
         <file>PageSwitcher.qml</file>
         <file>image/upload.png</file>
         <file>image/download.png</file>
@@ -25,5 +25,7 @@
         <file>image/user.png</file>
         <file>image/connected.png</file>
         <file>image/disconnected.png</file>
+        <file>Authors.qml</file>
+        <file>SettingsPage.qml</file>
     </qresource>
 </RCC>

@@ -3,4 +3,5 @@
         <file>mycert.crt</file>
         <file>mycert.key</file>
     </qresource>
+    <qresource prefix="/"/>
 </RCC>

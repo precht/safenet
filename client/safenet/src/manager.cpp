@@ -100,6 +100,10 @@ void Manager::downloadImage(QString fileName) {
 
 void Manager::updateServerModel()
 {
+    // clear old content
+    QFile tmp("filelist.txt");
+    tmp.remove();
+
     fl->listFiles(m_address);
 
     sm->clear();
