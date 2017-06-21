@@ -12,6 +12,7 @@
 #include <QRegularExpression>
 #include <QRegularExpressionMatchIterator>
 #include <QStandardPaths>
+#include <QGuiApplication>
 
 Manager::Manager(ServerModel *serverModel, QObject *parent)
     : QObject(parent)
@@ -24,7 +25,6 @@ Manager::Manager(ServerModel *serverModel, QObject *parent)
     connect(manager, SIGNAL(finished(QNetworkReply*)),
             this, SLOT(handle(QNetworkReply*)));
 
-
     kd = new KeyDownloader(manager);
     ku = new KeyUploader(manager);
     id = new ImageDownloader(manager);
@@ -32,15 +32,13 @@ Manager::Manager(ServerModel *serverModel, QObject *parent)
     fl = new FileLister(manager);
     sm = serverModel;
 
-    m_downloadFolder = "file://" + QStandardPaths::locate(QStandardPaths::DownloadLocation, "",
-                                                          QStandardPaths::LocateDirectory);
-    m_downloadFolder[m_downloadFolder.size() - 1] = ' ';
-    m_downloadFolder = m_downloadFolder.trimmed();
-
+    m_downloadFolder = QStandardPaths::locate(QStandardPaths::DownloadLocation, "", QStandardPaths::LocateDirectory);
     m_picturesFolder = "file://" + QStandardPaths::locate(QStandardPaths::PicturesLocation, "",
                                                           QStandardPaths::LocateDirectory);
     m_picturesFolder[m_picturesFolder.size() - 1] = ' ';
     m_picturesFolder = m_picturesFolder.trimmed();
+
+    m_appFolder = QGuiApplication::applicationDirPath();
 }
 
 Manager::~Manager()
@@ -95,7 +93,7 @@ void Manager::downloadKey() {
 }
 
 void Manager::downloadImage(QString fileName) {
-    id->doDownload(m_address);
+    id->doDownload(m_address, fileName);
     id->decrypt();
     qInfo() << "Downloaded image" << fileName << "...";
 }
@@ -134,6 +132,13 @@ void Manager::setPort(QString port)
     qInfo() << "Set port to:" << port + "...";
 }
 
+void Manager::save(QString name)
+{
+    QImage image("decrypted.png");
+    qInfo() << "Saving to : " << m_downloadFolder + name;
+    image.save(m_downloadFolder + name);
+}
+
 QString Manager::downloadFolder() const
 {
     return m_downloadFolder;
@@ -147,6 +152,21 @@ QString Manager::picturesFolder() const
 QString Manager::address() const
 {
     return m_address.mid(8, m_address.size() - 13);
+}
+
+QString Manager::ip() const
+{
+    return m_ip;
+}
+
+QString Manager::port() const
+{
+    return m_port;
+}
+
+QString Manager::appFolder() const
+{
+    return m_appFolder;
 }
 
 //void Manager::setDownloadFolder(QString downloadFolder)

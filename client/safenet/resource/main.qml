@@ -14,8 +14,5 @@ ApplicationWindow {
         anchors.fill: parent
     }
 
-    Component.onCompleted: {
-        console.log(manager.address)
-    }
-
 }
+

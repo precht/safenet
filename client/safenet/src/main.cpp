@@ -19,7 +19,6 @@ int main(int argc, char *argv[])
     ServerModel serverModel;
     Manager manager(&serverModel);
     manager.updateServerModel();
-    manager.updateServerModel();
     QQmlApplicationEngine engine;
 
     // add Manager and ServerModel as global properties

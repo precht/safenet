@@ -4,18 +4,13 @@ import Qt.labs.folderlistmodel 2.1
 import "."
 
 Item {
-    id: fileBrowser
-    property string path
-    property string parentPath
+    id: serverBrowser
     property double sizeCoef: width / (width < height ? Props.lowerSize : Props.higherSize)
     signal loaderCall(string name, string path)
 
     function show(path) {
-        var result = path.match(/(^file:\/\/\/|)(.*)\/[^\/]*$/)
-        fileBrowser.path = path
-        fileBrowser.parentPath = result[1] !== "" ? result[1] + result[2] : ""
         headerLoader.sourceComponent = headerComponent
-        browserLoader.sourceComponent = loadableComponent
+        browserLoader.sourceComponent = browserComponent
     }
 
     Loader {
@@ -41,52 +36,40 @@ Item {
         id: headerComponent
 
         Rectangle {
-            property string currentFolder: path.match(/([^\/]*$)/)[1]
             width: parent.width
             height: 55 * sizeCoef
             color: Props.secondBgColor
 
             Image {
                 anchors.verticalCenter: parent.verticalCenter
-                x: 4 * sizeCoef
+                x: 13 * sizeCoef
                 width: 28 * sizeCoef
                 height: 28 * sizeCoef
-                source: currentFolder !== "" ? "image/left.png" : "image/right.png"
+                source: "image/connected.png"
             }
             Rectangle {
                 id: textRect
                 color: "transparent"
-                x: 38 * sizeCoef
+                x: 48 * sizeCoef
                 width: parent.width - textRect.x
                 height: 54 * sizeCoef
                 clip: true
                 Text {
-                    text: currentFolder
+                    text: manager.address
                     font.family: Props.fontName
                     font.pixelSize: Props.fontSize * sizeCoef
                     y: 17 * sizeCoef
                 }
             }
-            Rectangle { // bottom line
-                y: parent.height - 1
-                width: parent.width
-                height: 1
-                color: Props.secondBgColor
-            }
-
             MouseArea {
                 anchors.fill: parent
                 onPressed: {
-                    if (parentPath !== "") {
-                        parent.x = 1
-                        parent.color = Props.pressedBgColor
-                    }
+                    parent.x = 1
+                    parent.color = Props.pressedBgColor
                 }
                 onReleased:  {
                     restoreOriginal()
-                    if (parentPath !== "") {
-                        show(parentPath)
-                    }
+                    manager.updateServerModel()
                 }
                 onCanceled: {
                     restoreOriginal()
@@ -100,24 +83,12 @@ Item {
     }
 
     Component {
-        id: loadableComponent
+        id: browserComponent
 
         Rectangle {
             id: root
 
             property alias listView: listView
-
-            FolderListModel {
-                id: folderModel
-                folder: fileBrowser.path
-                showDirs: true
-                showDirsFirst: true
-                nameFilters: Props.formats
-                showFiles: Props.showFiles
-                onFolderChanged: {
-                    parentPath = parentFolder.toString()
-                }
-            }
 
             Component {
                 id: browserComponent
@@ -139,7 +110,7 @@ Item {
                             x: 15 * sizeCoef
                             width: 30 * sizeCoef
                             height: 30 * sizeCoef
-                            source: fileIsDir ? "image/folder.png" : "image/picture.png"
+                            source: "image/picture.png"
                         }
                         Rectangle {
                             color: "transparent"
@@ -148,7 +119,7 @@ Item {
                             height: 55 * sizeCoef
                             clip: true
                             Text {
-                                text: fileName
+                                text: display
                                 font.family: Props.fontName
                                 font.pixelSize: Props.fontSize * sizeCoef
                                 y: 17 * sizeCoef
@@ -170,11 +141,7 @@ Item {
                             }
                             onReleased:  {
                                 restoreOriginal()
-                                if (fileIsDir) {
-                                    show(fileURL.toString())
-                                } else {
-                                    fileBrowser.loaderCall("LocalPicture.qml", fileURL.toString())
-                                }
+                                serverBrowser.loaderCall("RemotePicture.qml", display)
                             }
                             onCanceled: {
                                 restoreOriginal()
@@ -196,7 +163,7 @@ Item {
                 boundsBehavior: Flickable.StopAtBounds
                 anchors.fill: parent
                 delegate: browserComponent
-                model: folderModel
+                model: serverModel
 
                 ScrollBar.vertical: ScrollBar {
                     width: 7 * sizeCoef

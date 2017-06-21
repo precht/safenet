@@ -2,7 +2,7 @@
     <qresource prefix="/">
         <file>main.qml</file>
         <file>FileBrowser.qml</file>
-        <file>PictureViewer.qml</file>
+        <file>LocalPicture.qml</file>
         <file>qtquickcontrols2.conf</file>
         <file>Props.qml</file>
         <file>qmldir</file>
@@ -19,5 +19,11 @@
         <file>image/download.png</file>
         <file>image/settings.png</file>
         <file>DownloadPage.qml</file>
+        <file>ServerBrowser.qml</file>
+        <file>RemotePicture.qml</file>
+        <file>image/info.png</file>
+        <file>image/user.png</file>
+        <file>image/connected.png</file>
+        <file>image/disconnected.png</file>
     </qresource>
 </RCC>

@@ -36,24 +36,24 @@ void FileLister::listFiles(QString address){
 void FileLister::replyFinished(QNetworkReply* reply)
 {
 
-    qDebug() << "Listing files from server...";
+    qDebug() << "-->>" << "Listing files from server...";
 
     if(reply->error())
     {
-        qDebug() << "ERROR!";
-        qDebug() << reply->errorString();
-        qDebug() << reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt();
-        qDebug() << reply->attribute(QNetworkRequest::HttpReasonPhraseAttribute).toString();
+        qDebug() << "-->>" << "ERROR!";
+        qDebug() << "-->>" << reply->errorString();
+        qDebug() << "-->>" << reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt();
+        qDebug() << "-->>" << reply->attribute(QNetworkRequest::HttpReasonPhraseAttribute).toString();
     }
     else
     {
 
-        qDebug() << reply->header(QNetworkRequest::ContentTypeHeader).toString();
-        qDebug() << reply->header(QNetworkRequest::LastModifiedHeader).toDateTime().toString();
-        qDebug() << reply->header(QNetworkRequest::ContentLengthHeader).toULongLong();
-        qDebug() << reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt();
-        qDebug() << reply->attribute(QNetworkRequest::HttpReasonPhraseAttribute).toString();
-        qDebug() << "Connection encrypted: " << reply->attribute(QNetworkRequest::ConnectionEncryptedAttribute).toString();
+        qDebug() << "-->>" << reply->header(QNetworkRequest::ContentTypeHeader).toString();
+        qDebug() << "-->>" << reply->header(QNetworkRequest::LastModifiedHeader).toDateTime().toString();
+        qDebug() << "-->>" << reply->header(QNetworkRequest::ContentLengthHeader).toULongLong();
+        qDebug() << "-->>" << reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt();
+        qDebug() << "-->>" << reply->attribute(QNetworkRequest::HttpReasonPhraseAttribute).toString();
+        qDebug() << "-->>" << "Connection encrypted: " << reply->attribute(QNetworkRequest::ConnectionEncryptedAttribute).toString();
 
         QString fileToWrite = "filelist.txt";
         QFile *file = new QFile(fileToWrite);

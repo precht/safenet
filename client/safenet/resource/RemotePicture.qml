@@ -3,17 +3,15 @@ import CryptoImage 1.0
 import "."
 
 Item {
-    id: pictureViewer
+    id: localPicture
 
     property double sizeCoef: width / (width < height ? Props.lowerSize : Props.higherSize)
     property string path
-    property string folderPath
     signal loaderCall(string name, string path)
 
-    function show(path, folderPath) {
-        pictureViewer.path = path
-        var result = path.match(/(^file:\/\/\/|)(.*)\/[^\/]*$/)
-        pictureViewer.folderPath = result[1] !== "" ? result[1] + result[2] : ""
+    function show(path) {
+        localPicture.path = path
+        manager.downloadImage(path)
         headerLoader.sourceComponent = headerComponent
         viewerLoader.sourceComponent = viewerComponent
     }
@@ -35,28 +33,26 @@ Item {
         id: headerComponent
 
         Rectangle {
-            property string currentFolder: folderPath.match(/([^\/]*$)/)[1]
             width: parent.width
             height: 55 * sizeCoef
             color: Props.secondBgColor
 
             Image {
                 anchors.verticalCenter: parent.verticalCenter
-                x: 15 * sizeCoef
+                x: 13 * sizeCoef
                 width: 30 * sizeCoef
                 height: 30 * sizeCoef
-                visible: currentFolder !== ""
-                source: "image/folder.png"
+                source: "image/disconnected.png"
             }
             Rectangle {
                 id: textArea
-                x: 55 * sizeCoef
+                x: 48 * sizeCoef
                 width: parent.width - textArea.x
                 height: 54 * sizeCoef
                 color: "transparent"
                 clip: true
                 Text {
-                    text: currentFolder
+                    text: manager.address + "/" + path
                     font.family: Props.fontName
                     font.pixelSize: Props.fontSize * sizeCoef
                     y: 17 * sizeCoef
@@ -72,14 +68,12 @@ Item {
             MouseArea {
                 anchors.fill: parent
                 onPressed: {
-                    if (folderPath !== "") {
-                        parent.x = 1
-                        parent.color = Props.pressedBgColor
-                    }
+                    parent.x = 1
+                    parent.color = Props.pressedBgColor
                 }
                 onReleased:  {
                     restoreOriginal()
-                    pictureViewer.loaderCall("FileBrowser.qml", folderPath)
+                    localPicture.loaderCall("ServerBrowser.qml", "")
                 }
                 onCanceled: {
                     restoreOriginal()
@@ -106,7 +100,7 @@ Item {
                 CryptoImage {
                     id: cimage
                     anchors.fill: parent
-                    source: path
+                    source: "file://" + manager.appFolder + "/decrypted.png"
                 }
             }
             Row {
@@ -114,58 +108,14 @@ Item {
                 y: cimageWrapper.height + 20 * sizeCoef
 
                 Rectangle {
-                    id: cbutton
-                    property bool crytoMode: true
-//                    y: cimageWrapper.height + 20 * sizeCoef
-                    height: 54 * sizeCoef
-                    width: 100 * sizeCoef
-                    color: Props.secondBgColor
-                    Text {
-                        text: cbutton.crytoMode ? "Encrypt" : "Decrypt"
-                        font.family: Props.fontName
-                        font.pixelSize: Props.fontSize * sizeCoef
-                        y: 16 * sizeCoef
-                        anchors.horizontalCenter: parent.horizontalCenter
-                    }
-                    MouseArea {
-                        anchors.fill: parent
-                        property bool isEncrypt: true
-                        onPressed: {
-                            parent.color = Props.pressedBgColor
-                        }
-                        onReleased:  {
-                            if (cbutton.crytoMode) {
-                                cimage.encrypt()
-                                cbutton.crytoMode = false
-                            } else {
-                                cimage.decrypt()
-                                cbutton.crytoMode = true
-                            }
-                            restoreOriginal()
-                        }
-                        onCanceled: {
-                            restoreOriginal()
-                        }
-                        function restoreOriginal() {
-                            parent.color = Props.secondBgColor
-                        }
-                    }
-                }
-                Rectangle {
-                    x: 100 * sizeCoef
-                    width: 50 * sizeCoef
-                    height: 54 * sizeCoef
-                }
-
-                Rectangle {
                     id: ubutton
                     x: 250 * sizeCoef
-//                    y: cimageWrapper.height + 20 * sizeCoef
+                    //                    y: cimageWrapper.height + 20 * sizeCoef
                     height: 54 * sizeCoef
                     width: 100 * sizeCoef
                     color: Props.secondBgColor
                     Text {
-                        text: "Upload"
+                        text: "Save"
                         font.family: Props.fontName
                         font.pixelSize: Props.fontSize * sizeCoef
                         y: 16 * sizeCoef
@@ -178,7 +128,7 @@ Item {
                             parent.color = Props.pressedBgColor
                         }
                         onReleased:  {
-                            manager.uploadImage(path)
+                            manager.save(path)
                             restoreOriginal()
                         }
                         onCanceled: {
@@ -198,7 +148,7 @@ Item {
     Keys.onReleased: {
         if(event.key === Qt.Key_Escape || event.key === Qt.Key_Back) {
             event.accepted = true
-            pictureViewer.loaderCall("FileBrowser.qml", folderPath)
+            localPicture.loaderCall("FileBrowser.qml", folderPath)
         }
     }
 }

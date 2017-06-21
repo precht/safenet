@@ -1,6 +1,7 @@
 #include "imagedownloader.h"
 #include "sslconfig.h"
 #include "cipher.h"
+#include "manager.h"
 #include <QCoreApplication>
 
 ImageDownloader::ImageDownloader(QNetworkAccessManager *aManager, QObject *parent)
@@ -9,13 +10,14 @@ ImageDownloader::ImageDownloader(QNetworkAccessManager *aManager, QObject *paren
 {
 }
 
-void ImageDownloader::doDownload(QString address){
+void ImageDownloader::doDownload(QString address, QString fileName){
 
   /*  connect(manager, SIGNAL(finished(QNetworkReply*)),
             this, SLOT(replyFinished(QNetworkReply*)));*/
 
 
     QString completeAddress = address.append(QString("download/image"));
+//    QString completeAddress = address.append + "download/image" + fileName;
     QUrl url(completeAddress);
     request.setUrl(url);
 
@@ -68,7 +70,7 @@ void ImageDownloader::replyFinished(QNetworkReply* reply)
         qDebug() <<"-->>" << reply->attribute(QNetworkRequest::HttpReasonPhraseAttribute).toString();
         qDebug() <<"-->>" << "Connection encrypted: " << reply->attribute(QNetworkRequest::ConnectionEncryptedAttribute).toString();
 
-        QString fileToWrite = "downloadedimage.png";
+        QString fileToWrite = "downloaded.png";
 
         QFile *file = new QFile(fileToWrite);
 
@@ -94,8 +96,8 @@ void ImageDownloader::replyFinished(QNetworkReply* reply)
 
 void ImageDownloader::decrypt(){
     CmtIeaCipher cipher;
-    QString file("downloadedimage.png");
+    QString file("downloaded.png");
     QImage toDecrypt(file);
     cipher.decrypt(toDecrypt);
-    toDecrypt.save("result.png");
+    toDecrypt.save("decrypted.png");
 }

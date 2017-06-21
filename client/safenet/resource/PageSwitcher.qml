@@ -11,9 +11,12 @@ Item {
 
     function setIndex(index) {
         if (index !== currentIndex) {
+            if (currentIndex === 0) {
+                pageLoader.item.updateServer()
+            }
             currentIndex = index
             switch(index) {
-            case 0: pageLoader.source = "SettingsPage.qml"; break
+            case 0:  pageLoader.source = "SettingsPage.qml"; break
             case 1: pageLoader.source = "UploadPage.qml"; break
             case 2: pageLoader.source = "DownloadPage.qml"; break
             }
@@ -39,7 +42,7 @@ Item {
     Row {
         id: footer
         y: parent.height - footer.height
-        height: 50 * sizeCoef
+        height: 55 * sizeCoef
         width: parent.width
 
         Rectangle {
@@ -143,7 +146,7 @@ Item {
     Rectangle { // footer top line
         y: footer.y
         width: parent.width;
-        height: 1
+        height: 2
         color: Props.secondBgColor;
     }
 

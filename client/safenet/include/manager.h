@@ -17,9 +17,12 @@ class ServerModel;
 class Manager : public QObject
 {
     Q_OBJECT
-    Q_PROPERTY(QString picturesFolder READ picturesFolder)
-    Q_PROPERTY(QString downloadFolder READ downloadFolder)
-    Q_PROPERTY(QString address READ address)
+    Q_PROPERTY(QString picturesFolder READ picturesFolder NOTIFY picturesFolderChanged)
+//    Q_PROPERTY(QString downloadFolder READ downloadFolder NOTIFY downloadFolderChanged)
+    Q_PROPERTY(QString appFolder READ appFolder NOTIFY appFolderChanged)
+    Q_PROPERTY(QString address READ address NOTIFY addressChanged)
+    Q_PROPERTY(QString ip READ ip NOTIFY ipChanged)
+    Q_PROPERTY(QString port READ port NOTIFY portChanged)
 
 public:
     explicit Manager(ServerModel *serverModel, QObject *parent = 0);
@@ -32,16 +35,29 @@ public:
     Q_INVOKABLE void updateServerModel();
     Q_INVOKABLE void setIP(QString ip);
     Q_INVOKABLE void setPort(QString port);
+    Q_INVOKABLE void save(QString name);
 
     QString downloadFolder() const;
     QString picturesFolder() const;
-
+    QString appFolder() const;
     QString address() const;
+    QString ip() const;
+    QString port() const;
 
 public slots:
     void handle(QNetworkReply*);
 //    void setDownloadFolder(QString downloadFolder);
 //    void setPicturesFolder(QString picturesFolder);
+
+signals:
+    void addressChanged(QString address);
+    void appFolderChanged(QString appFolder);
+    void picturesFolderChanged(QString picturesFolder);
+    void downloadFolderChanged(QString downloadFolder);
+
+    void ipChanged(QString ip);
+
+    void portChanged(QString port);
 
 private:
     void setAddress();
@@ -58,6 +74,7 @@ private:
     QString m_address;
     QString m_downloadFolder;
     QString m_picturesFolder;
+    QString m_appFolder;
 };
 
 #endif // MANAGER_H
