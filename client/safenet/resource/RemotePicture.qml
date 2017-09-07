@@ -6,6 +6,8 @@ Item {
     id: localPicture
 
     property double sizeCoef: width / (width < height ? Props.lowerSize : Props.higherSize)
+    property string replayURL: "image://imageProvider/serverReplay"
+    property int counter: 0
     property string path
     signal loaderCall(string name, string path)
 
@@ -15,6 +17,15 @@ Item {
         headerLoader.sourceComponent = headerComponent
         viewerLoader.sourceComponent = viewerComponent
     }
+
+    Connections {
+        target: manager
+        onImageChanged: {
+            replayURL = "image://imageProvider/serverReplay?" + Qt.formatDateTime(new Date(), "hhmmsszzz")
+        }
+    }
+
+    // layout
 
     Loader {
         id: headerLoader
@@ -28,6 +39,8 @@ Item {
         anchors.topMargin: headerLoader.height + 15
         width: parent.width
     }
+
+    // components to be loaded
 
     Component {
         id: headerComponent
@@ -73,7 +86,7 @@ Item {
                 }
                 onReleased:  {
                     restoreOriginal()
-                    localPicture.loaderCall("ServerBrowser.qml", "")
+                    localPicture.loaderCall("RemoteFileBrowser.qml", "")
                 }
                 onCanceled: {
                     restoreOriginal()
@@ -91,26 +104,27 @@ Item {
 
         Item {
             Item {
-                id: cimageWrapper
+                id: replayImageWrapper
                 x: 20 * sizeCoef
                 y: 0
                 width: parent.width - 40 * sizeCoef
                 height: parent.height - 100 * sizeCoef
 
-                CryptoImage {
-                    id: cimage
+                Image {
+                    id: replayImage
                     anchors.fill: parent
-                    source: "file://" + manager.downloadFolder + "decrypted.png"
+                    fillMode: Image.PreserveAspectFit
+                    source: replayURL
                 }
             }
             Row {
                 anchors.horizontalCenter: parent.horizontalCenter
-                y: cimageWrapper.height + 20 * sizeCoef
+                y: replayImageWrapper.height + 20 * sizeCoef
 
                 Rectangle {
                     id: ubutton
                     x: 250 * sizeCoef
-                    //                    y: cimageWrapper.height + 20 * sizeCoef
+                    // y: replayImageWrapper.height + 20 * sizeCoef
                     height: 54 * sizeCoef
                     width: 100 * sizeCoef
                     color: Props.secondBgColor
@@ -148,7 +162,7 @@ Item {
     Keys.onReleased: {
         if(event.key === Qt.Key_Escape || event.key === Qt.Key_Back) {
             event.accepted = true
-            localPicture.loaderCall("FileBrowser.qml", folderPath)
+            localPicture.loaderCall("LocalFileBrowser.qml", folderPath)
         }
     }
 }

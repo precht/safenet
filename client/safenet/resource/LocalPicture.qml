@@ -18,6 +18,8 @@ Item {
         viewerLoader.sourceComponent = viewerComponent
     }
 
+    // layout
+
     Loader {
         id: headerLoader
         height: 55 * sizeCoef
@@ -30,6 +32,8 @@ Item {
         anchors.topMargin: headerLoader.height + 15
         width: parent.width
     }
+
+    // components to be loaded
 
     Component {
         id: headerComponent
@@ -79,7 +83,7 @@ Item {
                 }
                 onReleased:  {
                     restoreOriginal()
-                    localPicture.loaderCall("FileBrowser.qml", folderPath)
+                    localPicture.loaderCall("LocalFileBrowser.qml", folderPath)
                 }
                 onCanceled: {
                     restoreOriginal()
@@ -198,7 +202,7 @@ Item {
     Keys.onReleased: {
         if(event.key === Qt.Key_Escape || event.key === Qt.Key_Back) {
             event.accepted = true
-            localPicture.loaderCall("FileBrowser.qml", folderPath)
+            localPicture.loaderCall("LocalFileBrowser.qml", folderPath)
         }
     }
 }

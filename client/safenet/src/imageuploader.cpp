@@ -6,6 +6,7 @@
 #include <QRegularExpression>
 #include <QRegularExpressionMatch>
 #include <QDebug>
+#include <QBuffer>
 
 ImageUploader::ImageUploader(QNetworkAccessManager *aManager, QObject *parent)
     : QObject(parent)
@@ -20,30 +21,32 @@ void ImageUploader::doUpload(QString address, QString filePath, QString destPath
     /*connect(manager, SIGNAL(finished(QNetworkReply*)),
             this, SLOT(replyFinished(QNetworkReply*)));*/
 
-    //encryption
-    QImage original(filePath);
-
-    if (original.isNull()) {
+    // encrypt and prepare image to send
+    QImage image(filePath);
+    if (image.isNull()) {
         qDebug() << "Failed to load the image:" << filePath;
         return;
     }
-    encrypt(original);
 
+    CmtIeaCipher cipher;
+    QByteArray arr; // raw image
+    QBuffer saveBuff(&arr);
+    QBuffer readBuff(&arr);
 
-    //this file we will send
-    QString fileToSend(destPath + "encrypted.png");
+    cipher.encrypt(image);
+    saveBuff.open(QIODevice::WriteOnly);
+    image.save(&saveBuff, "PNG");
+    saveBuff.close();
+    readBuff.open(QIODevice::ReadOnly);
+
+    // send image
 
     QString completeAddress = address.append(QString("upload/image"));
     QUrl url(completeAddress);
     request.setUrl(url);
-
-
     request.setHeader(QNetworkRequest::ContentTypeHeader, QVariant(QString("multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW")));
-
-
     QHttpMultiPart *multiPart = new QHttpMultiPart(QHttpMultiPart::FormDataType);
     multiPart->setBoundary("----WebKitFormBoundary7MA4YWxkTrZu0gW");
-
 
     //name of file seen by server
     qInfo() << "this is what i have: " << filePath;
@@ -54,19 +57,14 @@ void ImageUploader::doUpload(QString address, QString filePath, QString destPath
     QString destinationFileName(fileName);
     QHttpPart imagePart;
     imagePart.setHeader(QNetworkRequest::ContentDispositionHeader, QVariant("form-data; name=\"file\"; filename=\"" + destinationFileName + "\""));
-    QFile *file = new QFile(fileToSend);
-    file->open(QIODevice::ReadOnly);
-    imagePart.setBodyDevice(file);
-
+    imagePart.setBodyDevice(&readBuff);
     multiPart->append(imagePart);
 
     //turned off ssl verification
     SslConfig aConfig(false);
     QSslConfiguration config = aConfig.getConfig();
     request.setSslConfiguration(config);
-
     request.setOriginatingObject(this);
-
 
     //login data for authorization
     QString username("test");
@@ -76,7 +74,6 @@ void ImageUploader::doUpload(QString address, QString filePath, QString destPath
     QString headerData = "Basic " + data;
     request.setRawHeader("Authorization", headerData.toLocal8Bit());
 
-
     QNetworkReply *reply = manager->post(request, multiPart);
     multiPart->setParent(reply);
 
@@ -85,7 +82,6 @@ void ImageUploader::doUpload(QString address, QString filePath, QString destPath
     loop.exec();
 
     delete multiPart;
-    delete file;
 }
 
 

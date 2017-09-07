@@ -48,10 +48,12 @@ void ImageDownloader::doDownload(QString address, QString fileName, QString dest
 }
 
 
-void ImageDownloader::replyFinished(QNetworkReply* reply)
+QImage ImageDownloader::replyFinished(QNetworkReply* reply)
 {
 
     qDebug() << "-->>" << "Image download";
+
+    QImage image;
 
     if(reply->error())
     {
@@ -72,32 +74,13 @@ void ImageDownloader::replyFinished(QNetworkReply* reply)
 
         QString fileToWrite = destPath + "downloaded.png";
 
-        QFile *file = new QFile(fileToWrite);
-
-        if(file->open(QFile::ReadWrite | QFile::Truncate))
-        {
-            file->write(reply->readAll());
-            file->flush();
-            file->close();
-        }
-
-        delete file;
-
+        image = QImage::fromData(reply->readAll(), "PNG");
+        CmtIeaCipher cipher;
+        cipher.decrypt(image);
     }
-
-    decrypt();
 
     reply->deleteLater();
     reply->abort();
 
-
-}
-
-
-void ImageDownloader::decrypt(){
-    CmtIeaCipher cipher;
-    QString file(destPath + "downloaded.png");
-    QImage toDecrypt(file);
-    cipher.decrypt(toDecrypt);
-    toDecrypt.save(destPath + "decrypted.png");
+    return image;
 }

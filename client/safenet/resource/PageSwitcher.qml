@@ -16,11 +16,11 @@ Item {
             }
             currentIndex = index
             switch(index) {
-            case 0:  pageLoader.source = "SettingsPage.qml"; break
-            case 1: pageLoader.source = "UploadPage.qml"; break
+            case 0:  pageLoader.source = "PageSettings.qml"; break
+            case 1: pageLoader.source = "PageUpload.qml"; break
             case 2:
                 manager.updateServerModel()
-                pageLoader.source = "DownloadPage.qml"
+                pageLoader.source = "PageDownload.qml"
                 break
             }
             pageLoader.item.focus = true

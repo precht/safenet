@@ -1,8 +1,11 @@
-import QtQuick 2.0
-import "."
+import QtQuick 2.5
 
 Item {
-    signal loaderCall(string name, string path)
+    signal loaderCall(string name)
+
+    function updateServer() {
+        loader.item.updateServer()
+    }
 
     Loader {
         id: loader
@@ -11,8 +14,7 @@ Item {
     }
 
     Component.onCompleted: {
-        loader.source = "FileBrowser.qml"
-        loader.item.show(manager.picturesFolder)
+        loader.source = "SettingsInput.qml"
         loader.item.focus = true
     }
 
@@ -20,7 +22,6 @@ Item {
         target: loader.item
         onLoaderCall: {
             loader.source = name
-            loader.item.show(path)
             loader.item.focus = true
         }
     }

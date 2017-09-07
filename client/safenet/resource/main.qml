@@ -6,17 +6,12 @@ import "."
 
 ApplicationWindow {
     visible: true
-    width: 750
-    height: 700
+    width: 800
+    height: 600
     title: "Safenet"
 
     PageSwitcher {
         anchors.fill: parent
     }
-
-//    Authors {
-//        anchors.fill: parent
-//    }
-
 }
 

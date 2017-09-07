@@ -18,6 +18,8 @@ Item {
         browserLoader.sourceComponent = loadableComponent
     }
 
+    // layout
+
     Loader {
         id: headerLoader
         x: 0
@@ -36,6 +38,8 @@ Item {
         height: parent.height - headerLoader.height
         clip: true
     }
+
+    // components to be loaded
 
     Component {
         id: headerComponent

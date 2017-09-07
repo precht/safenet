@@ -11,15 +11,14 @@ Item {
     }
 
     Component.onCompleted: {
-        loader.source = "ServerBrowser.qml"
-        loader.item.show()
+        loader.source = "LocalFileBrowser.qml"
+        loader.item.show(manager.picturesFolder)
         loader.item.focus = true
     }
 
     Connections {
         target: loader.item
         onLoaderCall: {
-            console.log("path " + path)
             loader.source = name
             loader.item.show(path)
             loader.item.focus = true

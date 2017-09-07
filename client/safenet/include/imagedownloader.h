@@ -21,12 +21,11 @@ class ImageDownloader : public QObject
 public:
     explicit ImageDownloader(QNetworkAccessManager *aManager = 0, QObject *parent = 0);
     void doDownload(QString address, QString fileName, QString destPath);
-    void decrypt();
 signals:
 
 
 public slots:
-    void replyFinished(QNetworkReply *reply);
+    QImage replyFinished(QNetworkReply *reply);
 
 
 private:

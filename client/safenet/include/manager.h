@@ -6,6 +6,7 @@
 #include <QNetworkRequest>
 #include <QNetworkReply>
 #include <QEventLoop>
+#include <QImage>
 
 class KeyDownloader;
 class KeyUploader;
@@ -13,6 +14,7 @@ class ImageDownloader;
 class ImageUploader;
 class FileLister;
 class ServerModel;
+class ImageProvider;
 
 class Manager : public QObject
 {
@@ -25,7 +27,7 @@ class Manager : public QObject
     Q_PROPERTY(QString port READ port NOTIFY portChanged)
 
 public:
-    explicit Manager(ServerModel *serverModel, QObject *parent = 0);
+    explicit Manager(ServerModel *serverModel, ImageProvider *imageProvider, QObject *parent = 0);
     ~Manager();
 
     Q_INVOKABLE void uploadKey();
@@ -43,6 +45,7 @@ public:
     QString address() const;
     QString ip() const;
     QString port() const;
+    ImageProvider* getImageProvider();
 
 public slots:
     void handle(QNetworkReply*);
@@ -56,8 +59,8 @@ signals:
     void downloadFolderChanged(QString downloadFolder);
 
     void ipChanged(QString ip);
-
     void portChanged(QString port);
+    void imageChanged();
 
 private:
     void setAddress();
@@ -69,6 +72,7 @@ private:
     ImageUploader *iu;
     FileLister *fl;
     ServerModel *sm;
+    ImageProvider *imp;
     QString m_ip;
     QString m_port;
     QString m_address;

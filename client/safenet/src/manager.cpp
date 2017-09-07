@@ -5,6 +5,7 @@
 #include "imagedownloader.h"
 #include "filelister.h"
 #include "servermodel.h"
+#include "imageprovider.h"
 
 #include <QUrl>
 #include <QFile>
@@ -14,7 +15,7 @@
 #include <QStandardPaths>
 #include <QGuiApplication>
 
-Manager::Manager(ServerModel *serverModel, QObject *parent)
+Manager::Manager(ServerModel *serverModel, ImageProvider *imageProvider, QObject *parent)
     : QObject(parent)
     , m_ip("localhost")
     , m_port("8085")
@@ -30,6 +31,7 @@ Manager::Manager(ServerModel *serverModel, QObject *parent)
     id = new ImageDownloader(manager);
     iu = new ImageUploader(manager);
     fl = new FileLister(manager);
+    imp = imageProvider;
     sm = serverModel;
 
     m_downloadFolder = QStandardPaths::locate(QStandardPaths::DownloadLocation, "", QStandardPaths::LocateDirectory);
@@ -59,7 +61,9 @@ void Manager::handle(QNetworkReply *reply) {
         kd->replyFinished(reply);
     }
     else if (object == id ) {
-        id->replyFinished(reply);
+        imp->setImage(id->replyFinished(reply));
+        qDebug() << "emiting imageChanged!!!";
+        emit imageChanged();
     }
     else if (object == iu ) {
         iu->replyFinished(reply);
@@ -94,7 +98,7 @@ void Manager::downloadKey() {
 
 void Manager::downloadImage(QString fileName) {
     id->doDownload(m_address, fileName, m_downloadFolder);
-    id->decrypt();
+//    id->decrypt(); // already called by doDownload
     qInfo() << "Downloaded image" << fileName << "...";
 }
 
@@ -138,9 +142,8 @@ void Manager::setPort(QString port)
 
 void Manager::save(QString name)
 {
-    QImage image("decrypted.png");
     qInfo() << "Saving to : " << m_downloadFolder + name;
-    image.save(m_downloadFolder + name);
+    imp->saveImage(m_downloadFolder + name);
 }
 
 QString Manager::downloadFolder() const
@@ -166,6 +169,11 @@ QString Manager::ip() const
 QString Manager::port() const
 {
     return m_port;
+}
+
+ImageProvider* Manager::getImageProvider()
+{
+    return imp;
 }
 
 QString Manager::appFolder() const

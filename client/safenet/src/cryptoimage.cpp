@@ -38,6 +38,11 @@ QString CryptoImage::source() const
     return source_;
 }
 
+QImage CryptoImage::image() const
+{
+    return image_;
+}
+
 void CryptoImage::setSource(QString source)
 {
     if (source_ == source)
@@ -46,6 +51,11 @@ void CryptoImage::setSource(QString source)
     source_ = source;
     loadImage();
     update();
+}
+
+void CryptoImage::setImage(QImage image)
+{
+    image_ = image;
 }
 
 void CryptoImage::loadImage()

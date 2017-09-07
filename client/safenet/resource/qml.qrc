@@ -1,7 +1,7 @@
 <RCC>
     <qresource prefix="/">
         <file>main.qml</file>
-        <file>FileBrowser.qml</file>
+        <file>LocalFileBrowser.qml</file>
         <file>LocalPicture.qml</file>
         <file>qtquickcontrols2.conf</file>
         <file>Props.qml</file>
@@ -12,20 +12,20 @@
         <file>image/left.png</file>
         <file>image/picture.png</file>
         <file>image/right.png</file>
-        <file>UploadPage.qml</file>
+        <file>PageUpload.qml</file>
         <file>SettingsInput.qml</file>
         <file>PageSwitcher.qml</file>
         <file>image/upload.png</file>
         <file>image/download.png</file>
         <file>image/settings.png</file>
-        <file>DownloadPage.qml</file>
-        <file>ServerBrowser.qml</file>
+        <file>PageDownload.qml</file>
+        <file>RemoteFileBrowser.qml</file>
         <file>RemotePicture.qml</file>
         <file>image/info.png</file>
         <file>image/user.png</file>
         <file>image/connected.png</file>
         <file>image/disconnected.png</file>
         <file>Authors.qml</file>
-        <file>SettingsPage.qml</file>
+        <file>PageSettings.qml</file>
     </qresource>
 </RCC>
