@@ -34,8 +34,14 @@ Manager::Manager(ServerModel *serverModel, ImageProvider *imageProvider, QObject
     imp = imageProvider;
     sm = serverModel;
 
+#ifdef Q_OS_WIN
+    QString prefix = "file:///";
+#else
+    QString prefix = "file://";
+#endif
+
     m_downloadFolder = QStandardPaths::locate(QStandardPaths::DownloadLocation, "", QStandardPaths::LocateDirectory);
-    m_picturesFolder = "file://" + QStandardPaths::locate(QStandardPaths::PicturesLocation, "",
+    m_picturesFolder = prefix + QStandardPaths::locate(QStandardPaths::PicturesLocation, "",
                                                           QStandardPaths::LocateDirectory);
     m_picturesFolder[m_picturesFolder.size() - 1] = ' ';
     m_picturesFolder = m_picturesFolder.trimmed();

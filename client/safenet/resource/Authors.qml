@@ -104,30 +104,7 @@ Rectangle {
                 x: 48 * sizeCoef
                 width: parent.width - textArea.x
                 height: 54 * sizeCoef
-                text: "Albert Kułakowski"
-                font.family: Props.fontName
-                font.pixelSize: Props.fontSize * sizeCoef
-                y: 17 * sizeCoef
-            }
-        }
-        Rectangle {
-            anchors.horizontalCenter: parent.horizontalCenter
-            height: 45 * sizeCoef
-            width: 230 * sizeCoef
-            color: "transparent"
-
-            Image {
-                anchors.verticalCenter: parent.verticalCenter
-                x: 13 * sizeCoef
-                width: 30 * sizeCoef
-                height: 30 * sizeCoef
-                source: "image/user.png"
-            }
-            Text {
-                x: 48 * sizeCoef
-                width: parent.width - textArea.x
-                height: 54 * sizeCoef
-                text: "Anna Krasiukianis"
+                text: "Jakub Precht"
                 font.family: Props.fontName
                 font.pixelSize: Props.fontSize * sizeCoef
                 y: 17 * sizeCoef
@@ -173,7 +150,30 @@ Rectangle {
                 x: 48 * sizeCoef
                 width: parent.width - textArea.x
                 height: 54 * sizeCoef
-                text: "Jakub Precht"
+                text: "Anna Krasiukianis"
+                font.family: Props.fontName
+                font.pixelSize: Props.fontSize * sizeCoef
+                y: 17 * sizeCoef
+            }
+        }
+        Rectangle {
+            anchors.horizontalCenter: parent.horizontalCenter
+            height: 45 * sizeCoef
+            width: 230 * sizeCoef
+            color: "transparent"
+
+            Image {
+                anchors.verticalCenter: parent.verticalCenter
+                x: 13 * sizeCoef
+                width: 30 * sizeCoef
+                height: 30 * sizeCoef
+                source: "image/user.png"
+            }
+            Text {
+                x: 48 * sizeCoef
+                width: parent.width - textArea.x
+                height: 54 * sizeCoef
+                text: "Albert Kułakowski"
                 font.family: Props.fontName
                 font.pixelSize: Props.fontSize * sizeCoef
                 y: 17 * sizeCoef

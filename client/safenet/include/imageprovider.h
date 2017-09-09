@@ -9,7 +9,7 @@ class ImageProvider : public QQuickImageProvider
 {
 public:
     ImageProvider();
-    QImage requestImage(const QString &id, QSize *size, const QSize &requestedSize) override;
+    QImage requestImage(const QString&, QSize *size, const QSize &requestedSize) override;
     void setImage(QImage image);
     void saveImage(QString path);
 

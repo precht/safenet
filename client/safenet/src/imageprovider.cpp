@@ -7,7 +7,7 @@ ImageProvider::ImageProvider()
 {
 }
 
-QImage ImageProvider::requestImage(const QString &id, QSize *size, const QSize &requestedSize)
+QImage ImageProvider::requestImage(const QString&, QSize *size, const QSize &requestedSize)
 {
     QImage result;
     if (size)
