@@ -14,6 +14,7 @@
 #include <QRegularExpressionMatchIterator>
 #include <QStandardPaths>
 #include <QGuiApplication>
+#include <QBuffer>
 
 Manager::Manager(ServerModel *serverModel, ImageProvider *imageProvider, QObject *parent)
     : QObject(parent)
@@ -110,17 +111,13 @@ void Manager::downloadImage(QString fileName) {
 
 void Manager::updateServerModel()
 {
-    // clear old content
-    QFile tmp("filelist.txt");
-    tmp.remove();
-
     fl->listFiles(m_address);
-
+    QByteArray& arr = fl->getList();
+    QBuffer buff(&arr);
     sm->clear();
-    QFile file("filelist.txt");
-    if (file.open(QFile::ReadOnly)) {
+    if (buff.open(QIODevice::ReadOnly)) {
         QRegularExpression re("\"([^\"]+)\"");
-        QRegularExpressionMatchIterator i = re.globalMatch(file.readAll());
+        QRegularExpressionMatchIterator i = re.globalMatch(buff.readAll());
         if (i.hasNext()) {
             i.next();
             while (i.hasNext()) {
@@ -128,7 +125,7 @@ void Manager::updateServerModel()
                 sm->addFile(match.captured(1));
             }
         }
-        file.close();
+        buff.close();
     }
     qInfo() << "Updated server model...";
 }

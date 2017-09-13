@@ -55,17 +55,13 @@ void FileLister::replyFinished(QNetworkReply* reply)
         qDebug() << "-->>" << reply->attribute(QNetworkRequest::HttpReasonPhraseAttribute).toString();
         qDebug() << "-->>" << "Connection encrypted: " << reply->attribute(QNetworkRequest::ConnectionEncryptedAttribute).toString();
 
-        QString fileToWrite = "filelist.txt";
-        QFile *file = new QFile(fileToWrite);
-        //if(file->open(QFile::Append))
-        if(file->open(QFile::ReadWrite | QFile::Truncate))
-        {
-            file->write(reply->readAll());
-            file->flush();
-            file->close();
-        }
-        delete file;
+        list = reply->readAll();
     }
 
     reply->deleteLater();
+}
+
+QByteArray &FileLister::getList()
+{
+    return list;
 }

@@ -12,6 +12,11 @@
 
 int main(int argc, char *argv[])
 {
+    if (!QSslSocket::supportsSsl()) {
+        qCritical() << "ERROR: No OpenSSL detected! Terminating!";
+        return 2;
+    }
+
     QGuiApplication app(argc, argv);
 
     // register CrytpoIamge as QML component

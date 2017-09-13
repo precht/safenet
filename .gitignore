@@ -30,7 +30,6 @@
 
 # Custom
 **/build/
-**/build*
 **/bin/
 **/lib/
 **/CMakeLists.txt.user

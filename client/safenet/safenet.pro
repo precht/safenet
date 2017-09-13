@@ -1,7 +1,7 @@
 TEMPLATE = app
 
-QT += qml quick
-CONFIG += c++11
+QT += qml quick network
+CONFIG += c++11 openssl-linked
 
 SOURCES += src/main.cpp \
     src/cipher.cpp \
@@ -38,7 +38,7 @@ RESOURCES += \
 
 INCLUDEPATH += include/
 
-QMAKE_CXXFLAGS += -std=c++11 -Wall -Wextra -pedantic -O3
+!win32: QMAKE_CXXFLAGS += -std=c++11 -Wall -Wextra -pedantic -O3
 
 # Additional import path used to resolve QML modules in Qt Creator's code model
 QML_IMPORT_PATH =

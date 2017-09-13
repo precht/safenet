@@ -15,6 +15,7 @@ class FileLister : public QObject
 public:
     explicit FileLister(QNetworkAccessManager *aManager = 0, QObject *parent = 0);
     void listFiles(QString address);
+    QByteArray& getList();
 
 public slots:
     void replyFinished(QNetworkReply *reply);
@@ -22,6 +23,7 @@ public slots:
 private:
     QNetworkAccessManager *manager;
     QNetworkRequest request;
+    QByteArray list;
 };
 
 #endif // FILELISTER_H
