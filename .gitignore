@@ -28,6 +28,7 @@
 *.out
 *.app
 *.jar
+*.msi
 
 # Custom
 **/build*/

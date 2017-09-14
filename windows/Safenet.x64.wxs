@@ -1,0 +1,343 @@
+<?xml version="1.0" encoding="windows-1252"?>
+    <Wix xmlns="http://schemas.microsoft.com/wix/2006/wi" xmlns:util="http://schemas.microsoft.com/wix/UtilExtension">
+    
+        <!-- GENERAL SETTINGS -->
+        <Product Id="*" 
+            Name="Safenet Client-Server" 
+            Manufacturer="J. Precht, J. Krymarys, A. Krasiukianis, A. Kulakowski"
+            Version="1.0.0" Language="1033" Codepage="1252" UpgradeCode="{84AB4540-744A-4543-A98A-90834C0B1F6A}">
+            
+        <Package Description="Safenet Installer"
+            Comments="Client-Server application for image sharing." 
+            Manufacturer="J. Precht, J. Krymarys, A. Krasiukianis, A. Kulakowski"
+            Keywords="Safenet, Installer" InstallerVersion="500" Languages="1033" Compressed="yes" SummaryCodepage="1252" />
+            
+        <MediaTemplate EmbedCab="yes"/>
+        <Icon Id="safenet.ico" SourceFile="..\client\resource\image\safenet.ico" />
+        <Property Id="ARPPRODUCTICON" Value="safenet.ico" />
+        <Property Id="MSIRESTARTMANAGERCONTROL" Value="Disable" Secure="yes" />
+
+        <!-- CHECK JAVA AND SYSTEM -->
+        <!-- server will not run with java32 (procrun) -->
+        <!-- <Property Id="JAVA_32"> -->
+            <!-- <RegistrySearch Id="JAVA_32_REGSEARCH" Root="HKLM" Key="SOFTWARE\JavaSoft\Java Runtime Environment" Name="CurrentVersion" Type="raw" Win64="no" /> -->
+        <!-- </Property> -->
+        <Property Id="JAVA_64">
+            <RegistrySearch Id="JAVA_64_REGSEARCH" Root="HKLM" Key="SOFTWARE\JavaSoft\Java Runtime Environment" Name="CurrentVersion" Type="raw" Win64="yes" />
+        </Property>
+        <Condition Message="Java Runtime Environment is not installed or outdated. Please install JRE 8 (64 bit) or later.&#xD;&#xA;&#xD;&#xA;http://oracle.com/technetwork/java/javase/downloads">
+            <![CDATA[Installed OR (JAVA_64 >= "1.8")]]>
+        </Condition>
+        <Property Id="SERVERDATA">
+            <RegistrySearch Key="Software\Safenet\Server" Root="HKLM" Type="raw" Id="SERVERDATA_REGSEARCH" Name="Data" />
+        </Property>
+
+        <!-- DIRECTORY STRUCTURE -->
+        <Directory Id="TARGETDIR" Name="SourceDir">
+            <Directory Id="ProgramFiles64Folder" Name="PFiles">
+                <Directory Id="INSTALLDIR" Name="Safenet">  
+                    <Component Id="LICENSE.rtf" Guid="{DA3E0B93-F96B-4D40-87C6-694087ABEF97}" Win64="yes">
+                        <File Id="LICENSE.rtf" Name="LICENSE.rtf" Source="resource\LICENSE.rtf" KeyPath="yes" Checksum="yes" />
+                    </Component>
+                    
+                    <!-- CLIENT -->
+                    <Directory Id="ClientDir" Name="Client">
+                        <Component Id="SafenetClient.exe" Guid="{F204993B-DC35-4DEB-B2F7-B9562FDD65BF}" Win64="yes">
+                            <File Id="SafenetClient.exe" Name="SafenetClient.exe" Source="..\build\release\safenet.exe" KeyPath="yes" Checksum="yes" >
+                                <Shortcut Id="startmenu_client" Directory="ProgramMenuDir" Name="Safenet Client" WorkingDirectory="Client" Icon="safenet.ico" IconIndex="0" Advertise="yes" />
+                                <Shortcut Id="desktop_client" Directory="DesktopFolder" Name="Safenet Client" WorkingDirectory="Client" Icon="safenet.ico" IconIndex="0" Advertise="yes" />
+                            </File>
+                        </Component>
+                        <Component Id="D3Dcompiler_47.dll" Guid="{CF24B121-3241-4BD6-B057-FC014182ED79}" Win64="yes">
+                            <File Id="D3Dcompiler_47.dll" Name="D3Dcompiler_47.dll" Source="..\build\release\D3Dcompiler_47.dll" KeyPath="yes" Checksum="yes" />
+                        </Component>
+                        <Component Id="libEGL.dll" Guid="{E5BF79A2-7D98-4E6C-ABCB-1943BDADB582}" Win64="yes">
+                            <File Id="libEGL.dll" Name="libEGL.dll" Source="..\build\release\libEGL.dll" KeyPath="yes" Checksum="yes" />
+                        </Component>
+                        <Component Id="libGLESV2.dll" Guid="{2C6137EF-48B1-46BC-A1B3-EB659D91B17B}" Win64="yes">
+                            <File Id="libGLESV2.dll" Name="libGLESV2.dll" Source="..\build\release\libGLESV2.dll" KeyPath="yes" Checksum="yes" />
+                        </Component>
+                        <Component Id="opengl32sw.dll" Guid="{3010D499-3F7B-487C-AFBF-F7986045AA93}" Win64="yes">
+                            <File Id="opengl32sw.dll" Name="opengl32sw.dll" Source="..\build\release\opengl32sw.dll" KeyPath="yes" Checksum="yes" />
+                        </Component>
+                        <Component Id="Qt5Core.dll" Guid="{B122BD68-159B-4DF6-A618-7528F3BF4DFF}" Win64="yes">
+                            <File Id="Qt5Core.dll" Name="Qt5Core.dll" Source="..\build\release\Qt5Core.dll" KeyPath="yes" Checksum="yes" />
+                        </Component>
+                        <Component Id="Qt5Gui.dll" Guid="{D58CD2A0-575B-46B5-B25A-001313B5ED18}" Win64="yes">
+                            <File Id="Qt5Gui.dll" Name="Qt5Gui.dll" Source="..\build\release\Qt5Gui.dll" KeyPath="yes" Checksum="yes" />
+                        </Component>
+                        <Component Id="Qt5Network.dll" Guid="{0440DF24-6378-486E-8E7D-1285AA359F62}" Win64="yes">
+                            <File Id="Qt5Network.dll" Name="Qt5Network.dll" Source="..\build\release\Qt5Network.dll" KeyPath="yes" Checksum="yes" />
+                        </Component>
+                        <Component Id="Qt5Qml.dll" Guid="{7C14A828-0929-406A-9AAF-F176CF526348}" Win64="yes">
+                            <File Id="Qt5Qml.dll" Name="Qt5Qml.dll" Source="..\build\release\Qt5Qml.dll" KeyPath="yes" Checksum="yes" />
+                        </Component>
+                        <Component Id="Qt5Quick.dll" Guid="{0D60F439-257E-4371-A2DF-0BFE48A38A46}" Win64="yes">
+                            <File Id="Qt5Quick.dll" Name="Qt5Quick.dll" Source="..\build\release\Qt5Quick.dll" KeyPath="yes" Checksum="yes" />
+                        </Component>
+                        <Component Id="Qt5QuickControls2.dll" Guid="{CF9276B9-56A5-4C42-BBF8-06BEFE14766F}" Win64="yes">
+                            <File Id="Qt5QuickControls2.dll" Name="Qt5QuickControls2.dll" Source="..\build\release\Qt5QuickControls2.dll" KeyPath="yes" Checksum="yes" />
+                        </Component>
+                        <Component Id="Qt5QuickTemplates2.dll" Guid="{427A9FC9-561E-4C2D-986C-B2C3D96786AB}" Win64="yes">
+                            <File Id="Qt5QuickTemplates2.dll" Name="Qt5QuickTemplates2.dll" Source="..\build\release\Qt5QuickTemplates2.dll" KeyPath="yes" Checksum="yes" />
+                        </Component>
+                        <Component Id="Qt5Widgets.dll" Guid="{8B0F6135-6432-4312-B2AD-A8734D566AF9}" Win64="yes">
+                            <File Id="Qt5Widgets.dll" Name="Qt5Widgets.dll" Source="..\build\release\Qt5Widgets.dll" KeyPath="yes" Checksum="yes" />
+                        </Component>
+                        <Component Id="libeay32.dll" Guid="{D196DBD2-4F4D-4F40-A02D-C442ECC988D0}" Win64="yes">
+                            <File Id="libeay32.dll" Name="libeay32.dll" Source="..\client\external\libeay32.dll" KeyPath="yes" Checksum="yes" />
+                        </Component>
+                        <Component Id="ssleay32.dll" Guid="{BC55669D-7E23-4A7E-BACD-537F2F77EBD6}" Win64="yes">
+                            <File Id="ssleay32.dll" Name="ssleay32.dll" Source="..\client\external\ssleay32.dll" KeyPath="yes" Checksum="yes" />
+                        </Component>
+                        <Component Id="msvcp140.dll" Guid="{AE20844B-4172-4137-94F1-94EA156698CD}" Win64="yes">
+                            <File Id="msvcp140.dll" Name="msvcp140.dll" Source="..\client\external\msvcp140.dll" KeyPath="yes" Checksum="yes" />
+                        </Component>
+                        <Component Id="vcruntime140.dll" Guid="{4F9BB2E2-1A81-469C-9CFF-22E08E63EEA5}" Win64="yes">
+                            <File Id="vcruntime140.dll" Name="vcruntime140.dll" Source="..\client\external\vcruntime140.dll" KeyPath="yes" Checksum="yes" />
+                        </Component>
+                        <Directory Id="imageformats" Name="imageformats">
+                            <Component Id="qjpeg.dll" Guid="{68C013FA-B79D-424D-905F-BCEBC1B377AB}" Win64="yes">
+                                <File Id="qjpeg.dll" Name="qjpeg.dll" Source="..\build\release\imageformats\qjpeg.dll" KeyPath="yes" Checksum="yes" />
+                            </Component>
+                            <Component Id="qwbmp.dll" Guid="{C60F6213-C33E-47E0-B89B-B34A9FCED066}" Win64="yes">
+                                <File Id="qwbmp.dll" Name="qwbmp.dll" Source="..\build\release\imageformats\qwbmp.dll" KeyPath="yes" Checksum="yes" />
+                            </Component>
+                        </Directory>
+                        <Directory Id="platforms" Name="platforms">
+                            <Component Id="qwindows.dll" Guid="{4BC051C4-E36A-44D6-8C29-3EF6EFC9DB48}" Win64="yes">
+                                <File Id="qwindows.dll" Name="qwindows.dll" Source="..\build\release\platforms\qwindows.dll" KeyPath="yes" Checksum="yes" />
+                            </Component>
+                        </Directory>
+                        <Directory Id="Qt" Name="Qt">
+                            <Directory Id="labs" Name="labs">
+                                <Directory Id="folderlistmodel" Name="folderlistmodel">
+                                    <Component Id="folderlistmodel_qmldir" Guid="{4D819A58-3360-4141-8881-26DEA4343572}" Win64="yes">
+                                        <File Id="folderlistmodel_qmldir" Name="qmldir" Source="..\build\release\Qt\labs\folderlistmodel\qmldir" KeyPath="yes" Checksum="yes" />
+                                    </Component>
+                                    <Component Id="qmlfolderlistmodelplugin.dll" Guid="{2E3DE3EB-4A70-4078-B608-017C85D02AFF}" Win64="yes">
+                                        <File Id="qmlfolderlistmodelplugin.dll" Name="qmlfolderlistmodelplugin.dll" Source="..\build\release\Qt\labs\folderlistmodel\qmlfolderlistmodelplugin.dll" KeyPath="yes" Checksum="yes" />
+                                    </Component>
+                                </Directory>
+                            </Directory>
+                        </Directory>
+                        <Directory Id="QtQuick" Name="QtQuick">
+                            <Directory Id="Controls.2" Name="Controls.2">
+                                <Component Id="ApplicationWindow.qml" Guid="{E16333F6-D2F6-4D0E-A7EE-7CFB56595FAB}" Win64="yes">
+                                    <File Id="ApplicationWindow.qml" Name="ApplicationWindow.qml" Source="..\build\release\QtQuick\Controls.2\ApplicationWindow.qml" KeyPath="yes" Checksum="yes" />
+                                </Component>
+                                <Component Id="ApplicationWindow.qmlc" Guid="{7BDD95FD-18A5-42C3-9604-9A89E6FD5703}" Win64="yes">
+                                    <File Id="ApplicationWindow.qmlc" Name="ApplicationWindow.qmlc" Source="..\build\release\QtQuick\Controls.2\ApplicationWindow.qmlc" KeyPath="yes" Checksum="yes" />
+                                </Component>
+                                <Component Id="Controls.2_qmldir" Guid="{D057B195-B3A0-456E-B8B0-4F2152009BB2}" Win64="yes">
+                                    <File Id="Controls.2_qmldir" Name="qmldir" Source="..\build\release\QtQuick\Controls.2\qmldir" KeyPath="yes" Checksum="yes" />
+                                </Component>
+                                <Component Id="qtquickcontrols2plugin.dll" Guid="{30C95389-1CBA-4E72-B1DC-2C6AB955B48B}" Win64="yes">
+                                    <File Id="qtquickcontrols2plugin.dll" Name="qtquickcontrols2plugin.dll" Source="..\build\release\QtQuick\Controls.2\qtquickcontrols2plugin.dll" KeyPath="yes" Checksum="yes" />
+                                </Component>
+                                <Component Id="ScrollBar.qml" Guid="{65BF8FFF-F178-4F8C-B66E-B03C5274297D}" Win64="yes">
+                                    <File Id="ScrollBar.qml" Name="ScrollBar.qml" Source="..\build\release\QtQuick\Controls.2\ScrollBar.qml" KeyPath="yes" Checksum="yes" />
+                                </Component>
+                                <Component Id="ScrollBar.qmlc" Guid="{4854976C-5002-47F1-97C2-509509E6BE46}" Win64="yes">
+                                    <File Id="ScrollBar.qmlc" Name="ScrollBar.qmlc" Source="..\build\release\QtQuick\Controls.2\ScrollBar.qmlc" KeyPath="yes" Checksum="yes" />
+                                </Component>
+                            </Directory>
+                            <Directory Id="Templates.2" Name="Templates.2">
+                                <Component Id="Templates.2_qmldir" Guid="{8C69ED4E-D9C4-4B28-850F-3B3AB9457606}" Win64="yes">
+                                    <File Id="Templates.2_qmldir" Name="qmldir" Source="..\build\release\QtQuick\Templates.2\qmldir" KeyPath="yes" Checksum="yes" />
+                                </Component>
+                                <Component Id="qtquicktemplates2plugin.dll" Guid="{80712BD0-2A5D-418F-B33E-384429BDB68F}" Win64="yes">
+                                    <File Id="qtquicktemplates2plugin.dll" Name="qtquicktemplates2plugin.dll" Source="..\build\release\QtQuick\Templates.2\qtquicktemplates2plugin.dll" KeyPath="yes" Checksum="yes" />
+                                </Component>
+                            </Directory>
+                            <Directory Id="Window.2" Name="Window.2">
+                                <Component Id="Window.2_qmldir" Guid="{7E479BA4-4C54-4382-9D97-76F7D0370F61}" Win64="yes">
+                                    <File Id="Window.2_qmldir" Name="qmldir" Source="..\build\release\QtQuick\Window.2\qmldir" KeyPath="yes" Checksum="yes" />
+                                </Component>
+                                <Component Id="windowplugin.dll" Guid="{8E190A00-C081-462E-9346-EB6255C3309E}" Win64="yes">
+                                    <File Id="windowplugin.dll" Name="windowplugin.dll" Source="..\build\release\QtQuick\Window.2\windowplugin.dll" KeyPath="yes" Checksum="yes" />
+                                </Component>
+                            </Directory>
+                        </Directory>
+                        <Directory Id="QtQuick.2" Name="QtQuick.2">
+                            <Component Id="QtQuick.2_qmldir" Guid="{55A58167-7BE1-47B3-8027-AC822AD0AD9F}" Win64="yes">
+                                <File Id="QtQuick.2_qmldir" Name="qmldir" Source="..\build\release\QtQuick.2\qmldir" KeyPath="yes" Checksum="yes" />
+                            </Component>
+                            <Component Id="qtquick2plugin.dll" Guid="{EC5371C5-6B35-47C5-9A27-4ACC049B244F}" Win64="yes">
+                                <File Id="qtquick2plugin.dll" Name="qtquick2plugin.dll" Source="..\build\release\QtQuick.2\qtquick2plugin.dll" KeyPath="yes" Checksum="yes" />
+                            </Component>
+                        </Directory>
+                    </Directory>
+                   
+                    <!-- SERVER -->
+                    <Directory Id="ServerDir" Name="Server">
+                        <Component Id="server.jar" Guid="{6DDD1BE9-9A7A-466B-BE9D-673A3D40F1F5}" Win64="yes" >
+                            <File Id="server.jar" Name="server.jar" Source="..\server\target\server.jar" KeyPath="yes" Checksum="yes" />
+                        </Component>
+                        <Component Id="SafenetServer.exe" Guid="{974CB492-D41E-4A99-A1AC-32464D4EB799}" Win64="yes" >
+                            <File Id="SafenetServer.exe" Name="SafenetServer.exe" Source="..\server\SafenetServer.exe" KeyPath="yes" Checksum="yes" />
+                            <!-- NOT WORKING !? -->
+                            <!-- <ServiceInstall Id="ServiceInstaller" DisplayName="SafenetServer" ErrorControl="normal" Name="SafenetServer" Start="auto" Type="ownProcess" /> -->
+                            <!-- <ServiceControl Id="ServiceControl" Name="SafenetServer" Start="install" Stop="both" Remove="uninstall" wait="no" /> -->
+                        </Component>
+                    </Directory>
+                </Directory>
+            </Directory>
+            <Directory Id="CommonAppDataFolder" Name="ProgramData">
+                <Directory Id="SERVERDATA" Name="SafenetServer">
+                    <Component Id="RemoveServerData" Guid="{5B3BB0F7-7544-4F34-AFDD-10EC6ED3E0FD}"  Win64='yes'>
+                        <RegistryValue Root="HKLM" Key="Software\Safenet\Server" Name="Data" Type="string" Value="[SERVERDATA]" KeyPath="yes" />
+                        <!-- THIS IS BLOCKED BY SERVER ?! -->
+                        <util:RemoveFolderEx On="uninstall" Property="SERVERDATA" />
+                    </Component>
+                    <Component Id="mycert.keystore" Guid="{EC643305-F115-4744-88F7-71027D907BA1}" Win64="yes" >
+                        <File Id="mycert.keystore" Name="mycert.keystore" Source="..\server\mycert.keystore" KeyPath="yes" Checksum="yes" />
+                    </Component>
+                </Directory>
+            </Directory>
+            <Directory Id="DesktopFolder" Name="Desktop" />
+            
+            <!-- CLIENT REGISTRY KEYS -->
+            <Directory Id="ProgramMenuFolder" Name="Programs">
+                <Directory Id="ProgramMenuDir" Name="Safenet">
+                    <Component Id="ProgramMenuDir" Guid="{407577DC-F2EB-4079-80A3-C5A025F9DB09}">
+                        <RemoveFolder Id="ProgramMenuDir" On="uninstall" />
+                        <RegistryValue Root="HKCU" Key="Software\Safenet" Type="string" Value="" KeyPath="yes" />
+                    </Component>
+                </Directory>
+            </Directory>
+            <Component Id="RegistryClient" Guid="{38977A29-F4D4-4682-A047-D8C6CEE646A4}" Win64="yes">
+                <RegistryKey Root="HKLM" Key="Software\Safenet\Client">
+                    <RegistryValue Type="string" Name="Path" Value="[ClientDir]" KeyPath="yes"/>
+                </RegistryKey>
+            </Component> 
+            
+            <!-- SERVER REGISTRY KEYS - mostly procrun.exe settings (which is renamed to SafenetServer.exe) -->
+            <Component Id="RegistryServer" Guid="{15836B2C-60BC-4036-9442-AED5C7E9FAF8}">
+                <RegistryKey Root="HKLM" Key="Software\Safenet\Server">
+                    <RegistryValue Type="string" Name="Path" Value="[ServerDir]" KeyPath="yes"/>
+                </RegistryKey> 
+                <RegistryKey Root="HKLM" Key="SOFTWARE\Wow6432Node\Apache Software Foundation\Procrun 2.0\SafenetServer\Parameters\Java">
+                    <RegistryValue Type="string" Name="Jvm" Value="auto" />
+                    <RegistryValue Type="string" Name="Classpath" Value="[ServerDir]server.jar" />
+                    <RegistryValue Type="integer" Name="JvmMs" Value="32" />
+                    <RegistryValue Type="integer" Name="JvmMx" Value="1024" />
+                    <RegistryValue Type="integer" Name="JvmSs" Value="4000" />
+                </RegistryKey>
+                <RegistryKey Root="HKLM" Key="SOFTWARE\Wow6432Node\Apache Software Foundation\Procrun 2.0\SafenetServer\Parameters\Log">
+                    <RegistryValue Type="string" Name="Path" Value="[SERVERDATA]logs\" />
+                    <RegistryValue Type="string" Name="Prefix" Value="SafenetServer" />
+                    <RegistryValue Type="string" Name="Level" Value="Error" />
+                    <RegistryValue Type="string" Name="StdError" Value="auto" />
+                    <RegistryValue Type="string" Name="StdOutput" Value="auto" />
+                </RegistryKey>
+                <RegistryKey Root="HKLM" Key="SOFTWARE\Wow6432Node\Apache Software Foundation\Procrun 2.0\SafenetServer\Parameters\Start">
+                    <RegistryValue Type="string" Name="Class" Value="pl.safenet.server.SafenetServer" />
+                    <RegistryValue Type="string" Name="Method" Value="start" />
+                    <RegistryValue Type="string" Name="Mode" Value="jvm" />
+                </RegistryKey>
+                <RegistryKey Root="HKLM" Key="SOFTWARE\Wow6432Node\Apache Software Foundation\Procrun 2.0\SafenetServer\Parameters\Stop">
+                    <RegistryValue Type="string" Name="Class" Value="pl.safenet.server.SafenetServer" />
+                    <RegistryValue Type="string" Name="Method" Value="stop" />
+                    <RegistryValue Type="string" Name="Mode" Value="jvm" />
+                </RegistryKey>
+                <RegistryKey Root="HKLM" Key="SYSTEM\CurrentControlSet\services\SafenetServer">
+                    <RegistryValue Type="string" Name="DisplayName" Value="SafenetServer" />
+                    <RegistryValue Type="string" Name="Description" Value="SafenetServer - safe image sharing." />
+                    <RegistryValue Type="string" Name="DependsOnService" Value="Tcpip Afd" />
+                    <RegistryValue Type="string" Name="ImagePath" Value="[ServerDir]SafenetServer.exe //RS//SafenetServer" />
+                    <RegistryValue Type="string" Name="ObjectName" Value="LocalSystem" />
+                    <RegistryValue Type="integer" Name="ErrorControl" Value="1" />
+                    <RegistryValue Type="integer" Name="Start" Value="2" />
+                    <RegistryValue Type="integer" Name="Type" Value="16" />
+                </RegistryKey>
+            </Component>
+           
+        </Directory>
+
+        <!-- GROUP COMPONENTS IN FEATURES -->
+        <Feature Id="CompleteFeature" Title="Safenet" Description="The complete package." Display="expand" Level="1" ConfigurableDirectory="INSTALLDIR">
+            <ComponentRef Id="LICENSE.rtf" />
+        
+            <!-- CLIENT FEATURE -->
+            <Feature Id="ClientFeature" Title="Client" Level="1" Description="Gui application that communicates with server." >
+                <ComponentRef Id="SafenetClient.exe" />
+                <ComponentRef Id="D3Dcompiler_47.dll" />
+                <ComponentRef Id="libEGL.dll"/>
+                <ComponentRef Id="libGLESV2.dll" />
+                <ComponentRef Id="opengl32sw.dll" />
+                <ComponentRef Id="Qt5Core.dll" />
+                <ComponentRef Id="Qt5Gui.dll" />
+                <ComponentRef Id="Qt5Network.dll" />
+                <ComponentRef Id="Qt5Qml.dll" />
+                <ComponentRef Id="Qt5Quick.dll" />
+                <ComponentRef Id="Qt5QuickControls2.dll" />
+                <ComponentRef Id="Qt5QuickTemplates2.dll" />
+                <ComponentRef Id="Qt5Widgets.dll" />
+                <ComponentRef Id="libeay32.dll" />
+                <ComponentRef Id="ssleay32.dll" />
+                <ComponentRef Id="msvcp140.dll" />
+                <ComponentRef Id="vcruntime140.dll" />
+                <ComponentRef Id="qjpeg.dll" />
+                <ComponentRef Id="qwbmp.dll" />
+                <ComponentRef Id="qwindows.dll" />
+                <ComponentRef Id="folderlistmodel_qmldir" />
+                <ComponentRef Id="qmlfolderlistmodelplugin.dll" />
+                <ComponentRef Id="ApplicationWindow.qml" />
+                <ComponentRef Id="ApplicationWindow.qmlc" />
+                <ComponentRef Id="Controls.2_qmldir" />
+                <ComponentRef Id="qtquickcontrols2plugin.dll" />
+                <ComponentRef Id="ScrollBar.qml" />
+                <ComponentRef Id="ScrollBar.qmlc" />
+                <ComponentRef Id="Templates.2_qmldir" />
+                <ComponentRef Id="qtquicktemplates2plugin.dll" />
+                <ComponentRef Id="Window.2_qmldir" />
+                <ComponentRef Id="windowplugin.dll" />
+                <ComponentRef Id="QtQuick.2_qmldir" />
+                <ComponentRef Id="qtquick2plugin.dll" />
+                <ComponentRef Id="RegistryClient" />
+                <ComponentRef Id="ProgramMenuDir" />
+            </Feature>
+
+            <!-- SERVER FEATURE -->
+            <Feature Id="ServerFeature" Title="Server" Level="1" Description="Server application that allows image exchange." >
+                <ComponentRef Id="RegistryServer" />
+                <ComponentRef Id="server.jar" />
+                <ComponentRef Id="SafenetServer.exe" />
+                <ComponentRef Id="mycert.keystore" />
+                <ComponentRef Id="RemoveServerData" />
+            </Feature>
+
+        </Feature>      
+        
+        <!-- CUSTOM ACTIONS FOR HANDLING SERVICE AND REMOVING REMAINING FILES -->
+        <CustomAction Id="InstallService" FileKey="SafenetServer.exe" ExeCommand="//IS//SafenetServer" Return="check" Impersonate="no" Execute="deferred" />
+        <CustomAction Id="StartService" Directory="TARGETDIR" ExeCommand="sc start SafenetServer" Return="check" Impersonate="no" Execute="deferred" />
+        <CustomAction Id="StopService" Directory="TARGETDIR" ExeCommand="sc stop SafenetServer" Return="ignore" Impersonate="no" Execute="deferred" />
+        <CustomAction Id="Wait" Directory="TARGETDIR" ExeCommand="timeout /t 5 /nobreak" Return="ignore" Impersonate="no" Execute="deferred" />
+        <CustomAction Id="InstallServiceRollback" FileKey="SafenetServer.exe" ExeCommand="//DS//SafenetServer" Return="ignore" Impersonate="no" Execute="rollback" />
+        <!-- to make sure service was deleted let's try to delete it in two different ways -->
+        <CustomAction Id="UninstallService1" FileKey="SafenetServer.exe" ExeCommand="//DS//SafenetServer" Return="ignore" Impersonate="no" Execute="deferred" />
+        <CustomAction Id="UninstallService2" Directory="TARGETDIR" ExeCommand="sc delete SafenetServer" Return="ignore" Impersonate="no" Execute="deferred" />
+        <!-- <CustomAction Id="RemoveData" Directory="TARGETDIR" ExeCommand="rmdir C:\ProgramData\SafenetServer /s /q" Return="ignore" Impersonate="no" Execute="deferred" /> -->
+        <InstallExecuteSequence>
+            <Custom Action="StopService" After="InstallInitialize" >Installed</Custom>
+            <Custom Action="Wait" After="StopService" >Installed</Custom>
+            <Custom Action="InstallService" After="InstallFiles" >NOT Installed</Custom>
+            <Custom Action="InstallServiceRollback" Before="InstallService" >NOT Installed</Custom>
+            <Custom Action="StartService" Before="InstallFinalize" >NOT Installed</Custom>
+            <Custom Action="UninstallService1" Before="RemoveFiles" >Installed</Custom>
+            <Custom Action="UninstallService2" Before="InstallFinalize" >(NOT UPGRADINGPRODUCTCODE) AND (REMOVE="ALL")</Custom>
+            <!-- <Custom Action="RemoveData" After="RemoveFiles" >(NOT UPGRADINGPRODUCTCODE) AND (REMOVE="ALL")</Custom> -->
+        </InstallExecuteSequence>
+        
+        <!-- GUI -->
+        <WixVariable Id="WixUILicenseRtf" Value="resource\LICENSE.rtf" />
+        <WixVariable Id="WixUIBannerBmp" Value="resource\banner.bmp" />
+        <WixVariable Id="WixUIDialogBmp" Value="resource\dialog.bmp" />
+        <UIRef Id="WixUI_FeatureTree" />
+        <UIRef Id="WixUI_ErrorProgressText" />
+
+        <MajorUpgrade DowngradeErrorMessage="A later version of Safenet Client-Server is already installed. Setup will now exit."/>
+    </Product>
+</Wix>

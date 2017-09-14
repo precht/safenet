@@ -25,7 +25,8 @@ import javax.ws.rs.core.Response.ResponseBuilder;
  
 public class API {
  
-    private static final String UPLOAD_FILE_SERVER = System.getProperty("user.home") + "/.safenet/";
+    private static final String UPLOAD_FILE_SERVER = "C:/ProgramData/SafenetServer/";
+
     private Key key;
  
     // DOWNLOADING KEY FROM SERVER

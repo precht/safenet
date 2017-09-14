@@ -33,7 +33,7 @@ public class SimpleHttpsServer {
             String keystoreFilename = getPath() + "mycert.keystore";
             char[] storepass = "mypassword".toCharArray();
             char[] keypass = "mypassword".toCharArray();
-            String alias = "selfsigned";
+//            String alias = "selfsigned";
             FileInputStream fIn = new FileInputStream(keystoreFilename);
             KeyStore keystore = KeyStore.getInstance("JKS");
             keystore.load(fIn, storepass);
@@ -73,8 +73,6 @@ public class SimpleHttpsServer {
                     }
                 }
             });
-
-            System.out.println("server started...");
             server.setExecutor(null);
             server.start();
         } catch (IOException | NoSuchAlgorithmException | KeyStoreException | CertificateException | UnrecoverableKeyException e) {
@@ -84,11 +82,10 @@ public class SimpleHttpsServer {
     }
 
     private String getPath() {
-        return System.getProperty("user.home") + "/.safenet/";
+        return "C:/ProgramData/SafenetServer/"; 
     }
 
     public void Stop() {
         server.stop(0);
-        System.out.println("server stopped");
     }
 }
