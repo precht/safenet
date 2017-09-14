@@ -1,9 +1,4 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
-package pl.ania.jerseyembeddedhttpserver;
+package pl.safenet.server;
 
 import com.sun.jersey.api.container.ContainerFactory;
 import com.sun.jersey.api.core.ResourceConfig;
@@ -14,10 +9,7 @@ import java.net.InetSocketAddress;
 import java.net.URI;
 import java.util.concurrent.Executors;
 
-/**
- *
- * @author ania
- */
+
 public class SecureServerFactory {
 
     //private static final int port = 8085;

@@ -1,9 +1,4 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
-package pl.ania.jerseyembeddedhttpserver;
+package pl.safenet.server;
  
 import com.sun.jersey.core.header.FormDataContentDisposition;
 import com.sun.jersey.multipart.FormDataParam;
@@ -25,16 +20,12 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.ResponseBuilder;
  
-/**
- *
- * @author ania
- */
+
 @Path("api")
- 
  
 public class API {
  
-    private static final String UPLOAD_FILE_SERVER = System.getProperty("user.dir") + "/";
+    private static final String UPLOAD_FILE_SERVER = System.getProperty("user.home") + "/.safenet/";
     private Key key;
  
     // DOWNLOADING KEY FROM SERVER
@@ -62,7 +53,7 @@ public class API {
         System.out.println("Listing files in server directory...");
         FileList listToSend = new FileList();
  
-        File folder = new File(".");
+        File folder = new File(UPLOAD_FILE_SERVER);
         File[] listOfFiles = folder.listFiles(new ImageFileFilter());
         List<String> fileList = new ArrayList<>();
  
@@ -128,7 +119,7 @@ public class API {
         public Response downloadImageFile(@PathParam("filename") String fileName) {
  
  
-        String path = System.getProperty("user.dir") + "/" + fileName;
+        String path = UPLOAD_FILE_SERVER + fileName;
                 System.out.println("File to download " + path);
         File file = new File(path);
  

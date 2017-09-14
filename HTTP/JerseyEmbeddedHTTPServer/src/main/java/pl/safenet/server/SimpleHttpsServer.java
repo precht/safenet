@@ -1,11 +1,5 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
-package pl.ania.jerseyembeddedhttpserver;
+package pl.safenet.server;
 
-import com.sun.net.httpserver.BasicAuthenticator;
 import com.sun.net.httpserver.HttpsConfigurator;
 import com.sun.net.httpserver.HttpsParameters;
 import com.sun.net.httpserver.HttpsServer;
@@ -16,7 +10,6 @@ import java.security.KeyStore;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.security.UnrecoverableKeyException;
-import java.security.cert.Certificate;
 import java.security.cert.CertificateException;
 import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.SSLContext;
@@ -24,10 +17,7 @@ import javax.net.ssl.SSLEngine;
 import javax.net.ssl.SSLParameters;
 import javax.net.ssl.TrustManagerFactory;
 
-/**
- *
- * @author ania
- */
+
 public class SimpleHttpsServer {
 
     private final HttpsServer server;
@@ -35,13 +25,6 @@ public class SimpleHttpsServer {
 
     public SimpleHttpsServer(HttpsServer aServer) {
         this.server = aServer;
-
-    /*    server.setAuthenticator(new BasicAuthenticator("get") {
-            @Override
-            public boolean checkCredentials(String user, String pwd) {
-                return user.equals("admin") && pwd.equals("password");
-            }
-        });*/
     }
 
     public void Start() throws KeyManagementException {
@@ -101,7 +84,7 @@ public class SimpleHttpsServer {
     }
 
     private String getPath() {
-        return System.getProperty("user.dir") + "/";
+        return System.getProperty("user.home") + "/.safenet/";
     }
 
     public void Stop() {
