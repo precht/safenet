@@ -25,8 +25,8 @@
         <Property Id="JAVA_64">
             <RegistrySearch Id="JAVA_64_REGSEARCH" Root="HKLM" Key="SOFTWARE\JavaSoft\Java Runtime Environment" Name="CurrentVersion" Type="raw" Win64="yes" />
         </Property>
-        <Condition Message="Java Runtime Environment is not installed or outdated. Please install JRE 8 (64 bit) or later.&#xD;&#xA;&#xD;&#xA;http://oracle.com/technetwork/java/javase/downloads">
-            <![CDATA[Installed OR (JAVA_64 >= "1.8")]]>
+        <Condition Message="Java Runtime Environment is not installed or wrong version is installed. Please install JRE 8 64 bit.&#xD;&#xA;&#xD;&#xA;http://oracle.com/technetwork/java/javase/downloads">
+            <![CDATA[Installed OR (JAVA_64 = "1.8")]]>
         </Condition>
         <Property Id="SERVERDATA">
             <RegistrySearch Key="Software\Safenet\Server" Root="HKLM" Type="raw" Id="SERVERDATA_REGSEARCH" Name="Data" />
@@ -175,7 +175,7 @@
                             <File Id="server.jar" Name="server.jar" Source="..\server\target\server.jar" KeyPath="yes" Checksum="yes" />
                         </Component>
                         <Component Id="SafenetServer.exe" Guid="{974CB492-D41E-4A99-A1AC-32464D4EB799}" Win64="yes" >
-                            <File Id="SafenetServer.exe" Name="SafenetServer.exe" Source="..\server\SafenetServer.exe" KeyPath="yes" Checksum="yes" />
+                            <File Id="SafenetServer.exe" Name="SafenetServer.exe" Source="SafenetServer.exe" KeyPath="yes" Checksum="yes" />
                             <!-- NOT WORKING !? -->
                             <!-- <ServiceInstall Id="ServiceInstaller" DisplayName="SafenetServer" ErrorControl="normal" Name="SafenetServer" Start="auto" Type="ownProcess" /> -->
                             <!-- <ServiceControl Id="ServiceControl" Name="SafenetServer" Start="install" Stop="both" Remove="uninstall" wait="no" /> -->
