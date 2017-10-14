@@ -7,8 +7,3 @@ Application for secure image sharing developed on PBL classes. Encryptrion algor
 - server - java application that's build upon Jersey https server.
 - windows - wix project creating windows msi installer. it wraps server.jar and registers it as windows service using apache procrun.
 
-## Authors 
-Jakub Precht  
-Jakub Krymarys  
-Anna Krasiukianis  
-Albert Kułakowski  
